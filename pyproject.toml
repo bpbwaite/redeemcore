@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[project]
+name = "RedemptionCore"
+version = "0.0.2"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    'gpiozero==2.0'
+    'emoji==2.8.0',
+    'python-decouple==3.8',
+    'twitch_chat_irc==0.0.4'
+]
