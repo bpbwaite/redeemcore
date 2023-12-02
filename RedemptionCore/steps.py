@@ -1,8 +1,7 @@
-
 from gpiozero import OutputDevice, PWMOutputDevice, AngularServo
 import time
 
-from log import logger
+from .log import logger
 
 # gpiozeo device storage
 deviceContainer = {}

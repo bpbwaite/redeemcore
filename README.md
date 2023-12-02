@@ -12,7 +12,7 @@ Barebones at the moment:
 
 build with ```python -m build```
 
-install with ```pip install -e .```
+install with ```pip install .```
 
 run with ```python -m RedemptionCore```
 

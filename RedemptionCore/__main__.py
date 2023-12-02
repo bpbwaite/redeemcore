@@ -1,8 +1,8 @@
 from decouple import config, UndefinedValueError
 from twitch_chat_irc import twitch_chat_irc as irc
 
-from log import logger, sumDonos
-from redeem import onMessage
+from .log import logger, sumDonos
+from .redeem import onMessage
 
 def main():
 

@@ -3,8 +3,8 @@ import emoji
 from decouple import config, Csv
 import json
 
-from log import logger, logActivity, cr
-from steps import stepsParser
+from .log import logger, logActivity, cr
+from .steps import stepsParser
 
 try:
     admins = config('ADMIN_IDS', cast=Csv())
@@ -28,46 +28,50 @@ def handleAction(costCode: str, payMethod: str, viewer_string: str = '') -> bool
     # Cost Code: integer as string
     # allows falling through to execute multiple actions
     try:
+        logger.info(f'Received {payMethod}-{costCode}-"{viewer_string}"...')
         with open(actionFile, "rt") as F:
             success = False
             for action in json.loads(F.read())['list']:
+                try:
+                    # methods/modes are distinguished only by their first letter
+                    if payMethod[0].upper() in [item[0].upper() for item in action['accepted_modes']]:
 
-                if payMethod[0].upper() in [item[0].upper() for item in action['accepted_modes']]:
-
-                    if payMethod == cr.SUBS:
-                        success = True
-                        stepsParser(action, costCode)
-                        logger.info(f'S{costCode} - ({action['name']})')
-
-                    if payMethod in [cr.BITS, cr.TIPS]:
-                        if action['exact'] and costCode == str(action['cost']):
-                            stepsParser(action, costCode)
-                            logger.info(f'A{costCode} - ({action['name']})')
-                            return True # first exact event has run
-                        elif not action['exact'] and int(costCode) >= int(action['cost']):
+                        if payMethod == cr.SUBS:
                             success = True
                             stepsParser(action, costCode)
-                            logger.info(f'A{costCode} - ({action['name']})')
+                            logger.info(f'S{costCode} - ({action['name']})')
 
-                    if payMethod == cr.POINTS:
-                        if costCode == str(action['cost']):
-                            points_name = action['name']
-                            points_cost = str(action['cost'])
-                            points_regexp = action['regexp_pts']
+                        if payMethod in [cr.BITS, cr.TIPS]:
+                            if action['exact'] and costCode == str(action['cost']):
+                                stepsParser(action, costCode)
+                                logger.info(f'A{costCode} - ({action['name']})')
+                                return True # first exact event has run
+                            elif not action['exact'] and int(costCode) >= int(action['cost']):
+                                success = True
+                                stepsParser(action, costCode)
+                                logger.info(f'A{costCode} - ({action['name']})')
 
-                            command_params = regex.compile(points_regexp).search(viewer_string)
+                        if payMethod == cr.POINTS:
+                            if costCode == str(action['cost']):
+                                points_name = action['name']
+                                points_cost = str(action['cost'])
+                                points_regexp = action['regexp_pts']
 
-                            if command_params is not None:
-                                # steps parser requries list of strings:
-                                command_params = [item.strip().lstrip("0") for item in command_params.groups()]
-                                stepsParser(action, costCode, command_params)
-                                logger.info(f'P{costCode} - ({action['name']}) with params "{', '.join(command_params)}"')
-                                return True
-                            else:
-                                logger.warning(f'Custom action {points_name} for {points_cost} ignored; invalid parameters')
-                                return False
+                                command_params = regex.compile(points_regexp).search(viewer_string)
+
+                                if command_params is not None:
+                                    # steps parser requries list of strings:
+                                    command_params = [item.strip().lstrip("0") for item in command_params.groups()]
+                                    stepsParser(action, costCode, command_params)
+                                    logger.info(f'P{costCode} - ({action['name']}) with params "{', '.join(command_params)}"')
+                                    return True
+                                else:
+                                    logger.warning(f'Custom action {points_name} for {points_cost} ignored; invalid parameters')
+                                    return False
+                except:
+                    logger.warning('An action was skipped. Invalid JSON?')
             if not success:
-                logger.info('(No action)')
+                logger.info('(No action ran)')
                 return False
             else:
                 return True
