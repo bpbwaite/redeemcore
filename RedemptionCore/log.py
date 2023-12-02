@@ -3,7 +3,7 @@ from decouple import config, UndefinedValueError
 import logging
 
 class cr: # custom reward methods enum
-    TIPS = 'tips'
+    TIPS = 'tip'
     BITS = 'bits'
     SUBS = 'sub'
     POINTS = 'points'
@@ -34,11 +34,11 @@ def logActivity(user: str, monetary: str, donation_method: str, actionSuccess: b
         pass
     elif actionSuccess == True:
         if donation_method in [cr.TIPS, cr.BITS, cr.SUBS]:  # (points have no value)
-            logger.info(f'{donation_method.upper()} +${float(monetary):.2f} donated by "{user}" succeeded')
+            logger.info(f'{donation_method.upper()} (+${float(monetary):.2f}) donated by "{user}" succeeded')
         else:
-            logger.info(f'{donation_method.upper()}{monetary} executed by "{user}" succeeded')
+            logger.info(f'{donation_method.upper()} {monetary} from "{user}" succeeded')
     else:
-            logger.info(f'{donation_method.upper()} ${float(monetary):.2f} donated by viewer "{user}" without action')
+            logger.info(f'{donation_method.upper()} (${float(monetary):.2f}) donated by viewer "{user}" without action')
 
 def sumDonos():
     try:
@@ -47,7 +47,7 @@ def sumDonos():
             for lines in F:
 
                 m = regex.compile(pattern=str(r'\+\$(\d+\.\d{2})')) \
-                    .search(lines.strip())
+                         .search(lines)
                 if m is not None:
                         runningTotal += float(m.groups()[0])
     except:
