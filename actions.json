@@ -1,139 +1,74 @@
 {
     "list": [
         {
-            "name": "Shake table on tip",
-            "uuid_pts": "N/A",
-            "regexp_pts": "N/A",
-            "accepted_modes": [
-                "Tips"
-            ],
-            "cost": "600",
-            "exact": false,
-            "steps": [
-                {
-                    "function": "SETPIN",
-                    "pin": "GPIO2",
-                    "state": "HIGH"
-                },
-                {
-                    "function": "DELAY",
-                    "time_milliseconds": "1500"
-                },
-                {
-                    "function": "SETPIN",
-                    "pin": "GPIO2",
-                    "state": "LOW"
-                }
-            ]
-        },
-        {
-            "name": "Shake table on bits",
-            "uuid_pts": "N/A",
-            "regexp_pts": "N/A",
-            "accepted_modes": [
-                "Bits"
-            ],
-            "cost": "1500",
-            "exact": true,
-            "steps": [
-                {
-                    "function": "SETPIN",
-                    "pin": "GPIO2",
-                    "state": "HIGH"
-                },
-                {
-                    "function": "DELAY",
-                    "time_milliseconds": "1500"
-                },
-                {
-                    "function": "SETPIN",
-                    "pin": "GPIO2",
-                    "state": "LOW"
-                }
-            ]
-        },
-        {
-            "name": "Smoke Machine",
-            "uuid_pts": "N/A",
-            "regexp_pts": "N/A",
-            "accepted_modes": [
-                "Tips"
-            ],
-            "cost": "500",
-            "exact": false,
-            "steps": [
-                {
-                    "function": "SETPIN",
-                    "pin": "GPIO3",
-                    "state": "HIGH"
-                },
-                {
-                    "function": "DELAY",
-                    "time_milliseconds": "500"
-                },
-                {
-                    "function": "DELAY",
-                    "time_milliseconds": "GIVEN",
-                    "repeat": "2.5"
-                },
-                {
-                    "function": "SETPIN",
-                    "pin": "GPIO3",
-                    "state": "LOW"
-                }
-            ]
-        },
-        {
-            "name": "Pull Trigger",
+            "name": "My First Action",
             "uuid_pts": "N/A",
             "regexp_pts": "N/A",
             "accepted_modes": [
                 "Tips",
+                "Bits",
                 "Subs"
-            ],
-            "cost": "500",
-            "exact": false,
-            "steps": [
-                {
-                    "function": "SERVO",
-                    "pin": "GPIO18",
-                    "position_deg": "130"
-                },
-                {
-                    "function": "DELAY",
-                    "time_milliseconds": "2000"
-                },
-                {
-                    "function": "SERVO",
-                    "pin": "GPIO18",
-                    "position_deg": "0"
-                }
-            ]
-        },
-        {
-            "name": "Set LED Color",
-            "uuid_pts": "364ccf81-52c9-4634-a1fd-052218394273",
-            "regexp_pts": "(?:^|[#&@\\s])([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})",
-            "accepted_modes": [
-                "Points"
             ],
             "cost": "500",
             "exact": true,
             "steps": [
                 {
+                    "function": "DELAY",
+                    "time_milliseconds": "GIVEN"
+                },
+                {
+                    "function": "SETPIN",
+                    "pin": "GPIO2",
+                    "state": "HIGH"
+                },
+                {
+                    "function": "TOGGLEPIN",
+                    "pin": "GPIO2"
+                },
+                {
                     "function": "SETPWM",
                     "pin": "GPIO12",
-                    "state": "REGEX_1"
+                    "state": "0xC4"
+                },
+                {
+                    "function": "SERVO",
+                    "pin": "GPIO3",
+                    "position_deg": "90"
+                }
+            ]
+        },
+        {
+            "name": "Advanced Points-Action",
+            "uuid_pts": "N/A",
+            "regexp_pts": "N/A",
+            "accepted_modes": [
+                "Points"
+            ],
+            "cost": "1000",
+            "exact": true,
+            "steps": [
+                {
+                    "function": "DELAY",
+                    "time_milliseconds": "REGEX_1"
+                },
+                {
+                    "function": "SETPIN",
+                    "pin": "GPIO2",
+                    "state": "HIGH"
+                },
+                {
+                    "function": "TOGGLEPIN",
+                    "pin": "GPIO2"
                 },
                 {
                     "function": "SETPWM",
-                    "pin": "GPIO13",
-                    "state": "REGEX_2"
+                    "pin": "GPIO12",
+                    "state": "0xC4"
                 },
                 {
-                    "function": "SETPWM",
-                    "pin": "GPIO19",
-                    "state": "REGEX_3"
+                    "function": "SERVO",
+                    "pin": "GPIO3",
+                    "position_deg": "90"
                 }
             ]
         }
