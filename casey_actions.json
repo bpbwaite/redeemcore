@@ -23,6 +23,10 @@
                     "function": "SETPIN",
                     "pin": "GPIO4",
                     "state": "HIGH"
+                },
+                {
+                    "function": "DELAY",
+                    "time_milliseconds": "2000"
                 }
             ]
         },
