@@ -13,16 +13,16 @@
                 {
                     "function": "SETPIN",
                     "pin": "GPIO4",
-                    "state": "LOW"
+                    "state": "HIGH"
                 },
                 {
                     "function": "DELAY",
-                    "time_milliseconds": "1000"
+                    "time_milliseconds": "750"
                 },
                 {
                     "function": "SETPIN",
                     "pin": "GPIO4",
-                    "state": "HIGH"
+                    "state": "LOW"
                 },
                 {
                     "function": "DELAY",
