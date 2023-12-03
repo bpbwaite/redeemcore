@@ -19,7 +19,7 @@ except UndefinedValueError:
 logging.basicConfig(filename=logFile if logFile else None,
                     filemode='a+',
                     format='[%(levelname)s][%(asctime)s] > %(message)s',
-                    level=logging.DEBUG, # set to 'logging.DEBUG' for more
+                    level=logging.INFO, # set to 'logging.DEBUG' for more
                     datefmt='%b %d, %Y %H:%M:%S'
                     )
 logging.getLogger().addHandler(logging.StreamHandler())
