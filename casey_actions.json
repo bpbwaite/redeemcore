@@ -66,7 +66,7 @@
             "steps": [
                 {
                     "function": "SETPIN",
-                    "pin": "GPIO27",
+                    "pin": "GPIO17",
                     "state": "HIGH"
                 },
                 {
@@ -75,7 +75,7 @@
                 },
                 {
                     "function": "SETPIN",
-                    "pin": "GPIO27",
+                    "pin": "GPIO17",
                     "state": "LOW"
                 }
             ]
