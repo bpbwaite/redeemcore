@@ -17,7 +17,7 @@ try:
     if not actionFile: raise Exception
 
 except:
-    logger.critical("Failed to get one or more configuration keys")
+    logger.critical('Failed to get one or more configuration keys')
     exit()
 
 def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
@@ -26,7 +26,7 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
     # allows falling through to execute multiple actions
     try:
         logger.info(f'Executing {payMethod}-{paycode}-"{viewer_string}"...')
-        with open(actionFile, "rt") as F:
+        with open(actionFile, 'rt') as F:
             success = False
             for action in json.loads(F.read())['list']:
                 try:
@@ -51,14 +51,14 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
 
                         if payMethod == cr.POINTS:
                             if paycode == costcode:
-                                points_name = action["name"]
+                                points_name = action['name']
                                 points_regexp = action['regexp_pts']
 
                                 command_params = regex.compile(points_regexp).search(viewer_string)
 
                                 if command_params is not None:
                                     # steps parser requries list of strings:
-                                    command_params = [item.strip().lstrip("0") for item in command_params.groups()]
+                                    command_params = [item.strip().lstrip('0') for item in command_params.groups()]
                                     logger.info(f'P{costcode} - ({action["name"]}) with params "{", ".join(command_params)}"')
                                     stepsParser(action, costcode, command_params)
                                     return True
@@ -79,7 +79,7 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
 
 def onMessage(IRCmsgDict: dict):
     try:
-        message_text = emoji.demojize(IRCmsgDict['message'], delimiters=(":", ":")) \
+        message_text = emoji.demojize(IRCmsgDict['message'], delimiters=(':',':')) \
             .encode('ascii', errors='xmlcharrefreplace') \
             .decode(errors='ignore')
         user_id = str(IRCmsgDict['user-id'])
@@ -105,7 +105,7 @@ def onMessage(IRCmsgDict: dict):
             if matches_tip is not None:
                 method = cr.TIPS
                 monetary = matches_tip.groups()[1]
-                paycode = monetary.replace('.', '').lstrip("0")
+                paycode = monetary.replace('.', '').lstrip('0')
                 # StreamElements bot message
                 # The first group is assumed to be the user name
                 users_name = matches_tip.groups()[0].strip()
@@ -133,7 +133,7 @@ def onMessage(IRCmsgDict: dict):
             method = cr.POINTS
             paycode = ''
             # incoming textbook bad coupling
-            with open(actionFile, "rt") as F:
+            with open(actionFile, 'rt') as F:
                 for action in json.loads(F.read())['list']:
                     if action['uuid_pts'] == IRCmsgDict['custom-reward-id']:
                         paycode = str(action['cost'])
@@ -158,7 +158,7 @@ def onMessage(IRCmsgDict: dict):
                 elif method == 'S':
                     method = cr.SUBS
 
-                paycode = matches_forceAction.groups()[1].replace('.', '').lstrip("0")
+                paycode = matches_forceAction.groups()[1].replace('.', '').lstrip('0')
 
                 if method == cr.TIPS and len(paycode) < 3:
                     paycode += '00'  # if user types '$5' make it '500'

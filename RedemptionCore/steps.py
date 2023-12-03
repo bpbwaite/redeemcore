@@ -19,7 +19,7 @@ try:
         raise Exception
 
 except:
-    logger.warn("Pin factory defaulted to mock")
+    logger.warn('Pin factory defaulted to mock')
     pinfactory = 'mock'
 
 if pinfactory == 'mock':
@@ -43,15 +43,15 @@ def stepsParser(action:dict, given:str, user_params:list = []):
             for key in subcom.keys():
                 # macro replacement
                 if subcom[key].upper() == 'HIGH':
-                    subcom[key] = "1"
+                    subcom[key] = '1'
                 if subcom[key].upper() == 'LOW':
-                    subcom[key] = "0"
+                    subcom[key] = '0'
                 if subcom[key].upper() == 'GIVEN':
                     subcom[key] = given
 
                 try:
                     # regex macro replacement
-                    if subcom[key].upper().startswith("REGEX_"):
+                    if subcom[key].upper().startswith('REGEX_'):
                         subcom[key] = r_groups[subcom[key]]
                 except:
                     # most likely, r_groups doesn't contain enough keys
@@ -71,9 +71,8 @@ def stepsParser(action:dict, given:str, user_params:list = []):
                 repetitions = 1.0 # default
                 if 'repeat' in subcom:
                     repetitions = float(subcom['repeat'])
-                #if repetitions <= 0:
-                #    repetitions = 1 # behavior before deciding float was better
                 logger.debug(f' - Running subcommand {f} with {period}, {repetitions:.2f}')
+
                 time.sleep(repetitions * period/1000)
 
             if f == 'SETPIN':

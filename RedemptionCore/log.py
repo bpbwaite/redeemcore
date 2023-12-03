@@ -51,6 +51,6 @@ def sumDonos():
                 if m is not None:
                         runningTotal += float(m.groups()[0])
     except:
-         logger.error("Invalid log file or structure")
+         logger.error('Invalid log file or structure')
          return 0
     return runningTotal
