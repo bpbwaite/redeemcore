@@ -5,12 +5,10 @@
             "uuid_pts": "N/A",
             "regexp_pts": "N/A",
             "accepted_modes": [
-                "Tips",
-                "Bits",
                 "Subs"
             ],
-            "cost": "100",
-            "exact": false,
+            "cost": "500",
+            "exact": true,
             "steps": [
                 {
                     "function": "SETPIN",
@@ -102,7 +100,7 @@
                 {
                     "function": "DELAY",
                     "time_milliseconds": "GIVEN",
-                    "repeat": "2.5"
+                    "repeat": "1.0"
                 },
                 {
                     "function": "SETPIN",
@@ -116,8 +114,7 @@
             "uuid_pts": "N/A",
             "regexp_pts": "N/A",
             "accepted_modes": [
-                "Tips",
-                "Subs"
+                "Tips"
             ],
             "cost": "500",
             "exact": false,
