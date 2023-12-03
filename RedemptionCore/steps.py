@@ -4,7 +4,7 @@ import time
 from gpiozero import OutputDevice, PWMOutputDevice, AngularServo
 from gpiozero.pins.mock import MockFactory
 from gpiozero.pins.native import NativeFactory
-#from gpiozero.pins.pigpio import PiGPIOFactory
+from gpiozero.pins.pigpio import PiGPIOFactory
 
 from .log import logger
 
@@ -15,20 +15,19 @@ pinfactory = ''
 try:
     pinfactory = config('PINFACTORY').lower()
 
-    #if pinfactory not in ['mock', 'rpigpio', 'lgpio', 'rpio', 'pigpio', 'native']:
-    #    raise Exception
-    if pinfactory not in ['mock', 'native']:
+    if pinfactory not in ['mock', 'rpigpio', 'lgpio', 'rpio', 'pigpio', 'native']:
         raise Exception
+
 except:
     logger.warn("Pin factory defaulted to mock")
     pinfactory = 'mock'
 
 if pinfactory == 'mock':
     pinfactory = MockFactory()
+elif pinfactory == 'pigpio':
+    pinfactory = PiGPIOFactory()
 else:
     pinfactory = NativeFactory()
-
-# todo: implement pigpiofactory
 
 def stepsParser(action:dict, given:str, user_params:list = []):
 
