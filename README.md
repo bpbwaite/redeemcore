@@ -1,6 +1,8 @@
 # RedemptionCore
 
-RedeemCore is in beta. There will be bugs and inefficiencies.
+RedeemptionCore is in beta. There will be bugs and inefficiencies.
+
+One (1) TVs have been destroyed by RedemptionCore
 
 ## Use Case
 
