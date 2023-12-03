@@ -78,7 +78,7 @@ def stepsParser(action:dict, given:str, user_params:list = []):
                 time.sleep(repetitions * period/1000)
 
             if f == 'SETPIN':
-                pin = subcom['pin']
+                pin = int(subcom['pin'].split('GPIO')[-1])
                 value = bool(int(subcom['state']))
                 logger.debug(f' - Running subcommand {f} with {pin}, {value}')
 
@@ -95,7 +95,7 @@ def stepsParser(action:dict, given:str, user_params:list = []):
                         )
 
             if f == 'TOGGLEPIN':
-                pin = subcom['pin']
+                pin = int(subcom['pin'].split('GPIO')[-1])
                 logger.debug(f' - Running subcommand {f} with {pin}')
 
                 if pin in deviceContainer:
@@ -108,7 +108,7 @@ def stepsParser(action:dict, given:str, user_params:list = []):
                         )
 
             if f == 'SETPWM':
-                pin = subcom['pin']
+                pin = int(subcom['pin'].split('GPIO')[-1])
                 # currently limited to hex 0x00-0xFF
                 # mapped from 0.0 - 1.0
                 value = min(255, max(0, int(subcom['state'], 16))) / 255.0
@@ -124,7 +124,7 @@ def stepsParser(action:dict, given:str, user_params:list = []):
                         )
 
             if f == 'SERVO':
-                pin = subcom['pin']
+                pin = int(subcom['pin'].split('GPIO')[-1])
                 pos = int(subcom['position_deg'])
                 logger.debug(f' - Running subcommand {f} with {pin}, {pos}')
 

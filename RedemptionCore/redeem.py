@@ -59,7 +59,7 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                                 if command_params is not None:
                                     # steps parser requries list of strings:
                                     command_params = [item.strip().lstrip("0") for item in command_params.groups()]
-                                    #logger.info(f'P{costcode} - ({action["name"]}) with params "{', '.join(command_params)}"')
+                                    logger.info(f'P{costcode} - ({action["name"]}) with params "{", ".join(command_params)}"')
                                     stepsParser(action, costcode, command_params)
                                     return True
                                 else:
