@@ -13,26 +13,17 @@
             "exact": true,
             "steps": [
                 {
+                    "function": "SETPIN",
+                    "pin": "GPIO4",
+                    "state": "HIGH"
+                },
+                {
                     "function": "DELAY",
                     "time_milliseconds": "GIVEN"
                 },
                 {
-                    "function": "SETPIN",
-                    "pin": "GPIO2",
-                    "state": "HIGH"
-                },
-                {
-                    "function": "TOGGLEPIN",
-                    "pin": "GPIO2"
-                },
-                {
-                    "function": "SETPWM",
-                    "pin": "GPIO12",
-                    "state": "0xC4"
-                },
-                {
                     "function": "SERVO",
-                    "pin": "GPIO3",
+                    "pin": "GPIO13",
                     "position_deg": "90"
                 }
             ]
@@ -48,27 +39,22 @@
             "exact": true,
             "steps": [
                 {
+                    "function": "SETPIN",
+                    "pin": "GPIO16",
+                    "state": "LOW"
+                },
+                {
                     "function": "DELAY",
                     "time_milliseconds": "REGEX_1"
                 },
                 {
-                    "function": "SETPIN",
-                    "pin": "GPIO2",
-                    "state": "HIGH"
-                },
-                {
                     "function": "TOGGLEPIN",
-                    "pin": "GPIO2"
+                    "pin": "GPIO16"
                 },
                 {
                     "function": "SETPWM",
-                    "pin": "GPIO12",
+                    "pin": "GPIO18",
                     "state": "0xC4"
-                },
-                {
-                    "function": "SERVO",
-                    "pin": "GPIO3",
-                    "position_deg": "90"
                 }
             ]
         }

@@ -4,7 +4,7 @@ import time
 from gpiozero import OutputDevice, PWMOutputDevice, AngularServo
 from gpiozero.pins.mock import MockFactory
 from gpiozero.pins.native import NativeFactory
-from gpiozero.pins.pigpio import PiGPIOFactory
+#from gpiozero.pins.pigpio import PiGPIOFactory
 
 from .log import logger
 
