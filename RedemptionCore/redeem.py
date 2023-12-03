@@ -16,45 +16,42 @@ try:
 
     if not actionFile: raise Exception
 
-    with open(actionFile, "rt") as F:
-        logger.debug(json.dumps(json.loads(F.read()), sort_keys=True, indent=4))
-
 except:
     logger.critical("Failed to get one or more configuration keys")
     exit()
 
-def handleAction(costCode: str, payMethod: str, viewer_string: str = '') -> bool:
+def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
     # Method: one of [T]ips, [B]its, or [P]oints, or [S]ubscription
     # Cost Code: integer as string
     # allows falling through to execute multiple actions
     try:
-        logger.info(f'Received {payMethod}-{costCode}-"{viewer_string}"...')
+        logger.info(f'Executing {payMethod}-{paycode}-"{viewer_string}"...')
         with open(actionFile, "rt") as F:
             success = False
             for action in json.loads(F.read())['list']:
                 try:
+                    costcode = str(action['cost'])
                     # methods/modes are distinguished only by their first letter
                     if payMethod[0].upper() in [item[0].upper() for item in action['accepted_modes']]:
 
                         if payMethod == cr.SUBS:
                             success = True
-                            stepsParser(action, costCode)
-                            logger.info(f'S{costCode} - ({action['name']})')
+                            logger.info(f'S{costcode} - ({action['name']})')
+                            stepsParser(action, paycode)
 
                         if payMethod in [cr.BITS, cr.TIPS]:
-                            if action['exact'] and costCode == str(action['cost']):
-                                stepsParser(action, costCode)
-                                logger.info(f'A{costCode} - ({action['name']})')
+                            if action['exact'] and paycode == str(action['cost']):
+                                logger.info(f'A{costcode} - ({action['name']})')
+                                stepsParser(action, paycode)
                                 return True # first exact event has run
-                            elif not action['exact'] and int(costCode) >= int(action['cost']):
+                            elif not action['exact'] and int(paycode) >= int(action['cost']):
                                 success = True
-                                stepsParser(action, costCode)
-                                logger.info(f'A{costCode} - ({action['name']})')
+                                logger.info(f'A{costcode} - ({action['name']})')
+                                stepsParser(action, paycode)
 
                         if payMethod == cr.POINTS:
-                            if costCode == str(action['cost']):
+                            if paycode == costcode:
                                 points_name = action['name']
-                                points_cost = str(action['cost'])
                                 points_regexp = action['regexp_pts']
 
                                 command_params = regex.compile(points_regexp).search(viewer_string)
@@ -62,16 +59,16 @@ def handleAction(costCode: str, payMethod: str, viewer_string: str = '') -> bool
                                 if command_params is not None:
                                     # steps parser requries list of strings:
                                     command_params = [item.strip().lstrip("0") for item in command_params.groups()]
-                                    stepsParser(action, costCode, command_params)
-                                    logger.info(f'P{costCode} - ({action['name']}) with params "{', '.join(command_params)}"')
+                                    logger.info(f'P{costcode} - ({action['name']}) with params "{', '.join(command_params)}"')
+                                    stepsParser(action, costcode, command_params)
                                     return True
                                 else:
-                                    logger.warning(f'Custom action {points_name} for {points_cost} ignored; invalid parameters')
+                                    logger.warning(f'Custom action {points_name} for {costcode} ignored; invalid parameters')
                                     return False
                 except:
-                    logger.warning('An action was skipped. Invalid JSON?')
+                    logger.warning('An action was skipped prior to execution. Invalid JSON?')
             if not success:
-                logger.info('(No action ran)')
+                logger.info('(No actions ran)')
                 return False
             else:
                 return True
@@ -92,7 +89,7 @@ def onMessage(IRCmsgDict: dict):
         users_name = IRCmsgDict['display-name']
         method = ''
         monetary = ''
-        costcode = ''
+        paycode = ''
         logger.debug(f'[{users_name}] {message_text}')
 
         if user_id in se_bots:
@@ -108,7 +105,7 @@ def onMessage(IRCmsgDict: dict):
             if matches_tip is not None:
                 method = cr.TIPS
                 monetary = matches_tip.groups()[1]
-                costcode = monetary.replace('.', '').lstrip("0")
+                paycode = monetary.replace('.', '').lstrip("0")
                 # StreamElements bot message
                 # The first group is assumed to be the user name
                 users_name = matches_tip.groups()[0].strip()
@@ -117,7 +114,7 @@ def onMessage(IRCmsgDict: dict):
             if matches_sub is not None:
                 method = cr.SUBS
                 monetary = '5.00'
-                costcode = '500'
+                paycode = '500'
                 # StreamElements bot message
                 # The first word is assumed to be the user name
                 users_name = message_text.lstrip().split(' ')[0]
@@ -128,19 +125,19 @@ def onMessage(IRCmsgDict: dict):
             bits_amount = str(IRCmsgDict['bits'])
             method = cr.BITS
             monetary = f'{(int(bits_amount) / 100):.2f}'
-            costcode = bits_amount
+            paycode = bits_amount
             newEvent = True
 
         if 'custom-reward-id' in IRCmsgDict:
 
             method = cr.POINTS
-            costcode = ''
+            paycode = ''
             # incoming textbook bad coupling
             with open(actionFile, "rt") as F:
                 for action in json.loads(F.read())['list']:
                     if action['uuid_pts'] == IRCmsgDict['custom-reward-id']:
-                        costcode = str(action['cost'])
-            monetary = costcode
+                        paycode = str(action['cost'])
+            monetary = paycode
             newEvent = True
 
         # manual trigger:
@@ -161,22 +158,23 @@ def onMessage(IRCmsgDict: dict):
                 elif method == 'S':
                     method = cr.SUBS
 
-                costcode = matches_forceAction.groups()[1].replace('.', '').lstrip("0")
+                paycode = matches_forceAction.groups()[1].replace('.', '').lstrip("0")
 
-                if method == cr.TIPS and len(costcode) < 3:
-                    costcode += '00'  # if user types '$5' make it '500'
-                if not costcode:
-                    costcode = '0'  # default value
-                elif int(costcode) == 0:
-                    costcode = '0'  # default value
+                if method == cr.TIPS and len(paycode) < 3:
+                    paycode += '00'  # if user types '$5' make it '500'
+                if not paycode:
+                    paycode = '0'  # default value
+                elif int(paycode) == 0:
+                    paycode = '0'  # default value
 
-                logger.info(f'Manually sent {method}{costcode}')
+                logger.debug(f'Manual Command: {method}{paycode}')
                 users_name = '__OVERRIDE'
-                monetary = costcode
+                monetary = paycode
                 newEvent = True
 
         if newEvent:
-            success = handleAction(costcode, method, message_text)
+            success = handleAction(paycode, method, message_text)
+            logger.info('(Done)')
             logActivity(users_name, monetary, method, success)
     except:
         logger.error('Message Handling Failure')

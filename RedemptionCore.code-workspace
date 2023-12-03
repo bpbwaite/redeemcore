@@ -14,9 +14,10 @@
 				"name": "Run Python File",
 				"type": "python",
 				"request": "launch",
-				"module": "RedemptionCore.${fileBasenameNoExtension}",
+				"module": "RedemptionCore.__main__",
 				"console": "externalTerminal",
-				"cwd": "${workspaceFolder}"
+				"cwd": "${workspaceFolder}",
+				"justMyCode": true
 			}
 		]
 	}
