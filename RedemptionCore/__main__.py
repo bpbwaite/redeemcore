@@ -7,7 +7,8 @@ from .redeem import onMessage
 def main():
 
     try:
-        channel = str(config('MAIN_CHANNEL')).strip() # raises undefinedvalueerror
+        channel = str(config('MAIN_CHANNEL')).strip()
+        # raises undefinedvalueerror
         if not channel:
             raise UndefinedValueError
 

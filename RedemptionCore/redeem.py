@@ -1,9 +1,9 @@
+from decouple import config, Csv, UndefinedValueError
 import re as regex
 import emoji
-from decouple import config, Csv
 import json
 
-from .log import logger, logActivity, cr
+from .log import logger, cr
 from .steps import stepsParser
 
 try:
@@ -13,21 +13,23 @@ try:
     regxp_force = config('REFORCE')
     regxp_sub = config('RESUB')
     regxp_tip = config('RETIP')
+    regxp_fol = config('REFOLLOW')
 
-    if not actionFile: raise Exception
+    if not actionFile: raise UndefinedValueError
 
-except:
+except UndefinedValueError:
     logger.critical('Failed to get one or more configuration keys')
     exit()
 
-def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
-    # Method: one of [T]ips, [B]its, or [P]oints, or [S]ubscription
-    # Cost Code: integer as string
+def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> int:
+    # tips, bits, subscriptions, follows
     # allows falling through to execute multiple actions
     try:
         logger.info(f'Executing {payMethod}-{paycode}-"{viewer_string}"...')
         with open(actionFile, 'rt') as F:
-            success = False
+
+            success = False # todo: count attempts/successes, return based on stepsParser result
+
             for action in json.loads(F.read())['list']:
                 try:
                     costcode = str(action['cost'])
@@ -37,6 +39,11 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                         if payMethod == cr.SUBS:
                             success = True
                             logger.info(f'S{costcode} - ({action["name"]})')
+                            stepsParser(action, paycode)
+
+                        if payMethod == cr.FOLLOWS:
+                            success = True
+                            logger.info(f'F{costcode} - ({action["name"]})')
                             stepsParser(action, paycode)
 
                         if payMethod in [cr.BITS, cr.TIPS]:
@@ -68,12 +75,13 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                 except:
                     logger.warning('An action was skipped prior to execution. Invalid JSON?')
             if not success:
-                logger.info('(No actions ran)')
+                logger.info('No actions ran')
                 return False
             else:
                 return True
-    except:
-            logger.error('Action Handling Failure')
+    except Exception as E:
+            logger.error(f'Action Handling Failure \
+                         ({type(E).__name__})')
             return False
 
 
@@ -90,7 +98,7 @@ def onMessage(IRCmsgDict: dict):
         method = ''
         monetary = ''
         paycode = ''
-        logger.debug(f'[{users_name}] {message_text}')
+        logger.debug(f'[{users_name}{user_id}] {message_text}')
 
         if user_id in se_bots:
 
@@ -99,6 +107,10 @@ def onMessage(IRCmsgDict: dict):
                                 .search(message_text)
 
             matches_sub = regex.compile(pattern=regxp_sub,\
+                                        flags=regex.IGNORECASE) \
+                                .search(message_text)
+
+            matches_follow = regex.compile(pattern=regxp_fol,\
                                         flags=regex.IGNORECASE) \
                                 .search(message_text)
 
@@ -118,6 +130,15 @@ def onMessage(IRCmsgDict: dict):
                 # StreamElements bot message
                 # The first word is assumed to be the user name
                 users_name = message_text.lstrip().split(' ')[0]
+                newEvent = True
+
+            if matches_follow is not None:
+                method = cr.FOLLOWS
+                monetary = '0'
+                paycode = '0'
+                # StreamElements bot message
+                # The last word is assumed to be the user name
+                users_name = message_text.lstrip().split(' ')[-1]
                 newEvent = True
 
         if 'bits' in IRCmsgDict:
@@ -145,18 +166,22 @@ def onMessage(IRCmsgDict: dict):
 
             matches_forceAction = regex.compile(pattern=regxp_force,\
                                                 flags=regex.IGNORECASE)\
-                                        .search(message_text.upper())
+                                        .search(message_text)
 
             if matches_forceAction is not None:
+
                 method = matches_forceAction.groups()[0][0].upper()
+
                 if method in ['$', 'T']:
                     method = cr.TIPS
                 elif method == 'B':
                     method = cr.BITS
-                elif method == 'P':
-                    method = cr.POINTS
                 elif method == 'S':
                     method = cr.SUBS
+                elif method == 'F':
+                    method = cr.FOLLOWS
+                elif method == 'P':
+                    method = cr.POINTS
 
                 paycode = matches_forceAction.groups()[1].replace('.', '').lstrip('0')
 
@@ -173,9 +198,20 @@ def onMessage(IRCmsgDict: dict):
                 newEvent = True
 
         if newEvent:
-            success = handleAction(paycode, method, message_text)
-            logger.info('(Done)')
-            logActivity(users_name, monetary, method, success)
-    except:
-        logger.error('Message Handling Failure')
+            successes = handleAction(paycode, method, message_text)
+            logger.info('Done')
+
+            if users_name == '__OVERRIDE':
+                pass
+            elif successes >= 1: # at least one action ran to completion
+                if method in [cr.TIPS, cr.BITS, cr.SUBS]:  # (points/follows have no value)
+                    logger.info(f'{method.upper()} (+${float(monetary):.2f}) donated by "{users_name}" succeeded')
+                else:
+                    logger.info(f'{method.upper()} from "{users_name}" succeeded')
+            else:
+                    logger.info(f'{method.upper()} (${float(monetary):.2f}) donated by viewer "{users_name}" without action')
+
+    except Exception as E:
+        logger.error(f'Message Handling Failure \
+                     {type(E).__name__}')
     return
