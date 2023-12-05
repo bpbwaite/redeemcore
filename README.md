@@ -1,14 +1,14 @@
 # RedemptionCore
 
-RedeemptionCore is in beta. There will be bugs and inefficiencies.
+RedemptionCore is in beta. There will be bugs and inefficiencies.
 
-One (1) TVs have been destroyed by RedemptionCore
+One (1) TVs have been destroyed by RedemptionCore. [clip](https://www.twitch.tv/patrickw3d/clip/LongTransparentTardigradeKAPOW-0oH3BWzX0tLzxPOD)
 
 ## Use Case
 
-The purpose RedemptionCore is to allow programming the GPIO pins on a Raspberry Pi to react to events during Twitch stream. For example, "turn on a light when you receive a donation or subscription". The scope has grown to include Bits and even Point redeems with custom messages.
+The purpose RedemptionCore is to allow programming the GPIO pins on a Raspberry Pi to react to events during Twitch stream. For example, "turn on a light when you receive a donation or subscription". The scope has grown to include Bits, Follows, and even Point redeems with custom messages.
 
-## Installation
+## Installation & Dependencies
 
 Barebones at the moment:
 
@@ -18,16 +18,18 @@ install with ```pip install .```
 
 run with ```python -m RedemptionCore```
 
+You also need StreamElements and pigpiod
+
 ## The ```settings.ini``` file
 
-Is the basic config used before any Actions can be registered. At the least, you should specify:
+Is the basic config used before any actions can be registered. At the least, you should specify:
 
 + A channel to watch (name as it appears in your URL)
 + The Twitch ID of a "bot" user - the default is StreamElements
 
 ### Administrators
 
-You may also specify one or more administrators by ID. They will be able to run Actions manually by chatting. See ["Running Actions Manually"](#running-actions-manually) for a how-to.
+You may also specify one or more administrators by ID. They will be able to run actions manually by chatting. See ["Running Actions Manually"](#running-actions-manually) for a how-to.
 
 ### Developer/Advanced Settings
 
@@ -37,31 +39,31 @@ If you have a custom tip/sub message in StreamElements, you can edit the regular
 
 ### What is an Action?
 
-These are events that can be run when someone donates to you in the form of a tip, bits, subscription, or points. They are defined by [action fields](#action-fields).
+These are events that can be run when someone donates to you in the form of a tip, bits, subscription, new follow, or points. They are defined by [action fields](#action-fields).
 
-The ```actions.json``` file is a list of Actions stored in a JSON object. Some things to note:
+The ```actions.json``` file is a list of actions stored in a JSON object. Some things to note:
 
-+ Order Actions based on priority; highest at the top
++ Order actions based on priority; highest at the top
 + Events shall run in the listed order
-+ Give "exact" Actions a higher priority thatn "inexact" Actions - unless you want every inexact Action to run when a large enough "exact" donation is made
++ Give "exact" actions a higher priority thatn "inexact" actions - unless you want every inexact action to run when a large enough "exact" donation is made
 + Custom rewards for points are advanced, as they take a message from a viewer to control something.
 
 ### Action Fields
 
-Every Action has certain required fields:
+Every action has certain required fields:
 
-+ 'name': A friendly, unique name for this Action. (string)
-+ 'accepted_modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', and 'points'. (list of string)
-+ 'cost': A number of cents, bits, or points required to run the Action. Subscription-actions always run if 'subs' is one of the accepted modes. (integer or string)
-+ 'exact': If false, the cost for this Action is a minimum threshold rather than a strict requirement. Implicitly true for points-actions. (boolean)
++ 'name': A friendly, unique name for this action. (string)
++ 'accepted_modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', 'follows', and 'points'. (list of string)
++ 'cost': A number of cents, bits, or points required to run the action. Subscription and follow actions always run if they are one of the accepted modes. (integer or string)
++ 'exact': If false, the cost for this action is a minimum threshold rather than a strict requirement. Implicitly true for points-actions. (boolean)
 + 'steps': (list of objects)
 
 Point-actions required fields:
 
 + 'uuid_pts': The UUID reported over IRC when points are redeemed. (string)
-+ 'regexp_pts': A regular expression. The groups in the first match can be used as [macros](#macros) in the steps ran by the Action. (string)
++ 'regexp_pts': A regular expression. The groups in the first match can be used as [macros](#macros) in the steps ran by the action. (string)
 
-Note: Generally each Action accepts just one mode. You may have copies of an Action where the only difference is the accepted modes and cost. It is not recommended to mix point-actions with the other types.
+Note: Generally each action accepts just one mode. You may have copies of an action where the only difference is the accepted modes and cost. It is not recommended to mix point-actions with the other types.
 
 ### Steps
 
@@ -89,3 +91,4 @@ Type in chat: ```force=<type><amount>``` to simlulate a donation. You must be an
 + ```force= B700``` - 700 bits
 + ```force= S500``` - a subscription
 + ```force= P650 abc``` - 650 points with message 'abc'
++ ```force= F1``` - new follow
