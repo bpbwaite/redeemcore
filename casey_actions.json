@@ -5,7 +5,8 @@
             "uuid_pts": "N/A",
             "regexp_pts": "N/A",
             "accepted_modes": [
-                "Subs"
+                "Subs",
+                "Follows"
             ],
             "cost": "500",
             "exact": true,

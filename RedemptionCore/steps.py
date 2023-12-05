@@ -3,8 +3,11 @@ import time
 
 from gpiozero import OutputDevice, PWMOutputDevice, AngularServo
 from gpiozero.pins.mock import MockFactory
-from gpiozero.pins.native import NativeFactory
-from gpiozero.pins.pigpio import PiGPIOFactory
+try:
+    from gpiozero.pins.native import NativeFactory
+    from gpiozero.pins.pigpio import PiGPIOFactory
+except:
+    pass # must be debugging
 
 from .log import logger
 
@@ -29,7 +32,7 @@ elif pinfactory == 'pigpio':
 else:
     pinfactory = NativeFactory()
 
-def stepsParser(action:dict, given:str, user_params:list = []):
+def stepsParser(action: dict, given: str = '0', user_params: list = []):
 
     try:
         r_groups = {}
@@ -39,20 +42,20 @@ def stepsParser(action:dict, given:str, user_params:list = []):
                 r_groups['REGEX_' + str(reg_idx)] = value
                 reg_idx += 1
 
-        for subcom in action['steps']:
-            for key in subcom.keys():
+        for subcommand in action['steps']:
+            for key in subcommand.keys():
                 # macro replacement
-                if subcom[key].upper() == 'HIGH':
-                    subcom[key] = '1'
-                if subcom[key].upper() == 'LOW':
-                    subcom[key] = '0'
-                if subcom[key].upper() == 'GIVEN':
-                    subcom[key] = given
+                if subcommand[key].upper() == 'HIGH':
+                    subcommand[key] = '1'
+                if subcommand[key].upper() == 'LOW':
+                    subcommand[key] = '0'
+                if subcommand[key].upper() == 'GIVEN':
+                    subcommand[key] = given
 
                 try:
                     # regex macro replacement
-                    if subcom[key].upper().startswith('REGEX_'):
-                        subcom[key] = r_groups[subcom[key]]
+                    if subcommand[key].upper().startswith('REGEX_'):
+                        subcommand[key] = r_groups[subcommand[key]]
                 except:
                     # most likely, r_groups doesn't contain enough keys
                     # because user set it up wrong
@@ -63,21 +66,21 @@ def stepsParser(action:dict, given:str, user_params:list = []):
             ## primary functions of each step:
             ###
 
-            f = subcom['function'].strip().upper()
+            f = subcommand['function'].strip().upper()
             # todo: something right here
 
             if f == 'DELAY':
-                period = int(subcom['time_milliseconds'])
+                period = int(subcommand['time_milliseconds'])
                 repetitions = 1.0 # default
-                if 'repeat' in subcom:
-                    repetitions = float(subcom['repeat'])
+                if 'repeat' in subcommand:
+                    repetitions = float(subcommand['repeat'])
                 logger.debug(f' - Running subcommand {f} with {period}, {repetitions:.2f}')
 
-                time.sleep(repetitions * period/1000)
+                time.sleep(repetitions * period / 1000)
 
             if f == 'SETPIN':
-                pin = int(subcom['pin'].split('GPIO')[-1])
-                value = bool(int(subcom['state']))
+                pin = int(subcommand['pin'].split('GPIO')[-1])
+                value = bool(int(subcommand['state']))
                 logger.debug(f' - Running subcommand {f} with {pin}, {value}')
 
                 if pin in deviceContainer:
@@ -93,7 +96,7 @@ def stepsParser(action:dict, given:str, user_params:list = []):
                         )
 
             if f == 'TOGGLEPIN':
-                pin = int(subcom['pin'].split('GPIO')[-1])
+                pin = int(subcommand['pin'].split('GPIO')[-1])
                 logger.debug(f' - Running subcommand {f} with {pin}')
 
                 if pin in deviceContainer:
@@ -106,10 +109,10 @@ def stepsParser(action:dict, given:str, user_params:list = []):
                         )
 
             if f == 'SETPWM':
-                pin = int(subcom['pin'].split('GPIO')[-1])
+                pin = int(subcommand['pin'].split('GPIO')[-1])
                 # currently limited to hex 0x00-0xFF
                 # mapped from 0.0 - 1.0
-                value = min(255, max(0, int(subcom['state'], 16))) / 255.0
+                value = min(255, max(0, int(subcommand['state'], 16))) / 255.0
                 logger.debug(f' - Running subcommand {f} with {pin}, {value:.3f}')
 
                 if pin in deviceContainer:
@@ -122,8 +125,8 @@ def stepsParser(action:dict, given:str, user_params:list = []):
                         )
 
             if f == 'SERVO':
-                pin = int(subcom['pin'].split('GPIO')[-1])
-                pos = int(subcom['position_deg'])
+                pin = int(subcommand['pin'].split('GPIO')[-1])
+                pos = int(subcommand['position_deg'])
                 logger.debug(f' - Running subcommand {f} with {pin}, {pos}')
 
                 if pin in deviceContainer:
