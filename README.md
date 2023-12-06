@@ -29,7 +29,7 @@ Is the basic config used before any actions can be registered. At the least, you
 
 ### Administrators
 
-You may also specify one or more administrators by ID. They will be able to run actions manually by chatting. See ["Running Actions Manually"](#running-actions-manually) for a how-to.
+You may also specify one or more administrators by ID. They will be able to run actions manually by chatting. See [running actions manually](#running-actions-manually) for a how-to.
 
 ### Developer/Advanced Settings
 
@@ -57,7 +57,7 @@ The ```actions.json``` file is a list of actions stored in a JSON object. Some t
 Every list action has certain required fields:
 
 + 'name': A friendly, unique name for this action. (string)
-+ 'accepted_modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', 'follows', and 'points'. (list of string)
++ 'accepted_modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', 'follows', and 'points'. Add the 'multiple-credit' option to a tips or bits action to run multiple times, based on the size of the donation. (list of string)
 + 'cost': A number of cents, bits, or points required to run the action. Subscription and follow actions always run if they are one of the accepted modes. (integer or string)
 + 'exact': If false, the cost for this action is a minimum threshold rather than a strict requirement. Implicitly true for points-actions. (boolean)
 + 'steps': (list of objects)
@@ -87,7 +87,7 @@ Can be used in steps
 
 + **HIGH** - evaluates to true, for turning on digital pins
 + **LOW** - evaluates to false, for turning off digital pins
-+ **GIVEN** - evaluates to the amount donated, regardless of the cost. Always evalues to 500 upon subscriptions, and 0 for automatic
++ **GIVEN** - evaluates to the amount donated, regardless of the cost. Always evalues to 500 upon subscriptions, and 0 for automatic or multiple-credit actions.
 + **REGEX_1, REGEX_2, ... REGEX_*n*** - evaluate to regular expression groups that the viewer supplied for a Points-action
 
 ### Running Actions Manually
@@ -100,3 +100,7 @@ Type in chat: ```force=<type><amount>``` to simlulate a donation. You must be an
 + ```force= S500``` - a subscription
 + ```force= P650 abc``` - 650 points with message 'abc'
 + ```force= F1``` - new follow
+
+### Log File
+
+WIP

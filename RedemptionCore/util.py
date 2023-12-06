@@ -9,6 +9,7 @@ class cr: # custom reward methods enum
     SUBS = 'sub'
     POINTS = 'points'
     FOLLOWS = 'follow'
+    MULTIPLE_CREDIT = 'multicredit'
 
 class RepeatingTimer(Timer):
      def run(self):

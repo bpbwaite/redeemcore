@@ -1,7 +1,8 @@
-import re
 import json
-import emoji
 import atexit
+import re
+import emoji
+from math import floor
 
 from .settings import *
 from .util import cr, RepeatingTimer
@@ -70,7 +71,14 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                             elif not action['exact'] and int(paycode) >= int(action['cost']):
                                 success = True
                                 logger.info(f'A{costcode} - ({action["name"]})')
-                                stepsParser(action['steps'], paycode)
+                                # inexact actions that accept multiple-credit can run repeatedly
+                                # e.g. a $5 action runs 4x when $20 is donated:
+                                if cr.MULTIPLE_CREDIT[0].upper() in [item[0].upper() for item in action['accepted_modes']]:
+                                    logger.debug('Redeeming multiple credits')
+                                    for _ in range(floor(paycode / costcode)):
+                                        stepsParser(action['steps'])
+                                else:
+                                    stepsParser(action['steps'], paycode)
 
                         if payMethod == cr.POINTS:
                             if paycode == costcode:
