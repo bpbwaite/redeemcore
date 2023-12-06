@@ -74,8 +74,9 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                                 # inexact actions that accept multiple-credit can run repeatedly
                                 # e.g. a $5 action runs 4x when $20 is donated:
                                 if cr.MULTIPLE_CREDIT[0].upper() in [item[0].upper() for item in action['accepted_modes']]:
-                                    logger.debug('Redeeming multiple credits')
-                                    for _ in range(floor(paycode / costcode)):
+                                    if int(paycode) >= 2 * int(costcode):
+                                        logger.debug('Redeeming as multiple credits')
+                                    for _ in range(floor(float(paycode) / float(costcode))):
                                         stepsParser(action['steps'])
                                 else:
                                     stepsParser(action['steps'], paycode)

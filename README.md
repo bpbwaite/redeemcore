@@ -57,7 +57,7 @@ The ```actions.json``` file is a list of actions stored in a JSON object. Some t
 Every list action has certain required fields:
 
 + 'name': A friendly, unique name for this action. (string)
-+ 'accepted_modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', 'follows', and 'points'. Add the 'multiple-credit' option to a tips or bits action to run multiple times, based on the size of the donation. (list of string)
++ 'accepted_modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', 'follows', and 'points'. See also the [multiple-credit](#Multiple Credits) option. (list of string)
 + 'cost': A number of cents, bits, or points required to run the action. Subscription and follow actions always run if they are one of the accepted modes. (integer or string)
 + 'exact': If false, the cost for this action is a minimum threshold rather than a strict requirement. Implicitly true for points-actions. (boolean)
 + 'steps': (list of objects)
@@ -69,9 +69,13 @@ Point-actions required fields:
 
 Note: Generally each action accepts just one mode. You may have copies of an action where the only difference is the accepted modes and cost. It is not recommended to mix point-actions with the other types.
 
+### Multiple Credits
+
+Add the 'multiple-credit' option to the 'accepted_modes' field of an inexact tips or bits action to run multiple times, based on the size of the donation. Multiple credit actions should not use certain macros.
+
 ### Initialization and Periodic Actions
 
-These are automatic actions. Actions that run on startup are called initialization actions. Their action fields include 'name' and 'steps'. Periodic actions run repeatedly without any input. They are like initialization actions but also have a 'period' field, where you can enter an interval in milliseconds.
+These are automatic actions. Actions that run on startup are called initialization actions. Their action fields include 'name' and 'steps'. Periodic actions run repeatedly without any input. They are like initialization actions but also have a 'period' field, where you can enter an interval in milliseconds. Automatic actions should not use certain macros.
 
 ### Steps
 
@@ -87,6 +91,7 @@ Can be used in steps
 
 + **HIGH** - evaluates to true, for turning on digital pins
 + **LOW** - evaluates to false, for turning off digital pins
+
 + **GIVEN** - evaluates to the amount donated, regardless of the cost. Always evalues to 500 upon subscriptions, and 0 for automatic or multiple-credit actions.
 + **REGEX_1, REGEX_2, ... REGEX_*n*** - evaluate to regular expression groups that the viewer supplied for a Points-action
 
