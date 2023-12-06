@@ -1,4 +1,3 @@
-from decouple import config
 import time
 
 from gpiozero import OutputDevice, PWMOutputDevice, AngularServo
@@ -7,23 +6,12 @@ try:
     from gpiozero.pins.native import NativeFactory
     from gpiozero.pins.pigpio import PiGPIOFactory
 except:
-    pass # must be debugging
+    pass # debugging
 
-from .log import logger
+from .settings import logger, pinfactory
 
 # gpiozeo device storage and factory
 deviceContainer = {}
-pinfactory = ''
-
-try:
-    pinfactory = config('PINFACTORY').lower()
-
-    if pinfactory not in ['mock', 'rpigpio', 'lgpio', 'rpio', 'pigpio', 'native']:
-        raise Exception
-
-except:
-    logger.warn('Pin factory defaulted to mock')
-    pinfactory = 'mock'
 
 if pinfactory == 'mock':
     pinfactory = MockFactory()
@@ -32,7 +20,7 @@ elif pinfactory == 'pigpio':
 else:
     pinfactory = NativeFactory()
 
-def stepsParser(action: dict, given: str = '0', user_params: list = []):
+def stepsParser(steps: dict, given: str = '0', user_params: list = []):
 
     try:
         r_groups = {}
@@ -42,7 +30,7 @@ def stepsParser(action: dict, given: str = '0', user_params: list = []):
                 r_groups['REGEX_' + str(reg_idx)] = value
                 reg_idx += 1
 
-        for subcommand in action['steps']:
+        for subcommand in steps:
             for key in subcommand.keys():
                 # macro replacement
                 if subcommand[key].upper() == 'HIGH':
@@ -63,23 +51,25 @@ def stepsParser(action: dict, given: str = '0', user_params: list = []):
                     return
 
             ###
-            ## primary functions of each step:
+            ### primary functions of each step:
             ###
 
             f = subcommand['function'].strip().upper()
-            # todo: something right here
+
+            pin = ''
+            if 'pin' in subcommand:
+                pin = int(subcommand['pin'].split('GPIO')[-1])
 
             if f == 'DELAY':
-                period = int(subcommand['time_milliseconds'])
+                duration = int(subcommand['time_milliseconds'])
                 repetitions = 1.0 # default
                 if 'repeat' in subcommand:
                     repetitions = float(subcommand['repeat'])
-                logger.debug(f' - Running subcommand {f} with {period}, {repetitions:.2f}')
+                logger.debug(f' - Running subcommand {f} with {duration}, {repetitions:.2f}')
 
-                time.sleep(repetitions * period / 1000)
+                time.sleep(repetitions * duration / 1000)
 
             if f == 'SETPIN':
-                pin = int(subcommand['pin'].split('GPIO')[-1])
                 value = bool(int(subcommand['state']))
                 logger.debug(f' - Running subcommand {f} with {pin}, {value}')
 
@@ -96,7 +86,6 @@ def stepsParser(action: dict, given: str = '0', user_params: list = []):
                         )
 
             if f == 'TOGGLEPIN':
-                pin = int(subcommand['pin'].split('GPIO')[-1])
                 logger.debug(f' - Running subcommand {f} with {pin}')
 
                 if pin in deviceContainer:
@@ -109,7 +98,6 @@ def stepsParser(action: dict, given: str = '0', user_params: list = []):
                         )
 
             if f == 'SETPWM':
-                pin = int(subcommand['pin'].split('GPIO')[-1])
                 # currently limited to hex 0x00-0xFF
                 # mapped from 0.0 - 1.0
                 value = min(255, max(0, int(subcommand['state'], 16))) / 255.0
@@ -125,7 +113,6 @@ def stepsParser(action: dict, given: str = '0', user_params: list = []):
                         )
 
             if f == 'SERVO':
-                pin = int(subcommand['pin'].split('GPIO')[-1])
                 pos = int(subcommand['position_deg'])
                 logger.debug(f' - Running subcommand {f} with {pin}, {pos}')
 
