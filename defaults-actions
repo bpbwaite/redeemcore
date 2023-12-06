@@ -1,4 +1,23 @@
 {
+    "initialization": [
+        {
+            "name": "Setup",
+            "steps": [
+                {
+                    "function": "SETPIN",
+                    "pin": "GPIO4",
+                    "state": "LOW"
+                }
+            ]
+        }
+    ],
+    "periodic": [
+        {
+            "name": "Periodic Task",
+            "period": "30000",
+            "steps": []
+        }
+    ],
     "list": [
         {
             "name": "My First Action",
