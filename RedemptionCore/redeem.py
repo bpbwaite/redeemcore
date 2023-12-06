@@ -9,7 +9,7 @@ from .steps import stepsParser
 def initialTasks():
     # Run initialization tasks
     try:
-        logger.info('Running initialization actions')
+        logger.info('Performing startup actions')
         with open(actionFile, 'rt') as F:
             for action in json.loads(F.read())['initialization']:
                 stepsParser(action['steps'])

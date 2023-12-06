@@ -18,7 +18,7 @@ install with ```pip install .```
 
 run with ```python -m RedemptionCore```
 
-You also need StreamElements and pigpiod
+You also need StreamElements and pigpiod ```(sudo pigpiod)```
 
 ## The ```settings.ini``` file
 
@@ -39,18 +39,22 @@ If you have a custom tip/sub message in StreamElements, you can edit the regular
 
 ### What is an Action?
 
-These are events that can be run when someone donates to you in the form of a tip, bits, subscription, new follow, or points. They are defined by [action fields](#action-fields).
+There are now 3 categories of actions:
+
++ 'List': These are events that can be run when someone donates to you in the form of a tip, bits, subscription, new follow, or points. They are defined by [action fields](#action-fields).
++ 'Initialization': Actions that run only once when the program starts.
++ 'Periodic': Not yet implemented
 
 The ```actions.json``` file is a list of actions stored in a JSON object. Some things to note:
 
 + Order actions based on priority; highest at the top
 + Events shall run in the listed order
-+ Give "exact" actions a higher priority thatn "inexact" actions - unless you want every inexact action to run when a large enough "exact" donation is made
++ Give "exact" actions a higher priority than "inexact" actions - unless you want every inexact action to run when a large enough "exact" donation is made
 + Custom rewards for points are advanced, as they take a message from a viewer to control something.
 
 ### Action Fields
 
-Every action has certain required fields:
+Every list action has certain required fields:
 
 + 'name': A friendly, unique name for this action. (string)
 + 'accepted_modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', 'follows', and 'points'. (list of string)
@@ -64,6 +68,12 @@ Point-actions required fields:
 + 'regexp_pts': A regular expression. The groups in the first match can be used as [macros](#macros) in the steps ran by the action. (string)
 
 Note: Generally each action accepts just one mode. You may have copies of an action where the only difference is the accepted modes and cost. It is not recommended to mix point-actions with the other types.
+
+### Initialization and Periodic Actions
+
+Actions that run on startup are called initialization actions. Their action fields include 'name' and 'steps'.
+
+Periodic actions run over and over without any input. They are like initialization actions but also have a 'period' field.
 
 ### Steps
 
