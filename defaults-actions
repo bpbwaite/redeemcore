@@ -14,8 +14,13 @@
     "periodic": [
         {
             "name": "Periodic Task",
-            "period": "30000",
-            "steps": []
+            "period": "5000",
+            "steps": [
+                {
+                    "function": "DELAY",
+                    "time_milliseconds": "1"
+                }
+            ]
         }
     ],
     "list": [

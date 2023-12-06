@@ -1,9 +1,10 @@
 import re
 import json
 import emoji
+import atexit
 
 from .settings import *
-from .util import cr
+from .util import cr, RepeatingTimer
 from .steps import stepsParser
 
 def initialTasks():
@@ -15,7 +16,25 @@ def initialTasks():
                 stepsParser(action['steps'])
 
     except:
-        logger.error('Problem running initialization tasks')
+        logger.error('Problem with initialization actions')
+
+def registerPeriodicTasks():
+    try:
+        logger.info('Registering periodic actions')
+        with open(actionFile, 'rt') as F:
+            for action in json.loads(F.read())['periodic']:
+                period = int(action['period']) / 1000.0 # ms to sec
+                new_thread = RepeatingTimer(interval=period,
+                                            function=stepsParser,
+                                            args=(action['steps'],)
+                                            )
+                new_thread.daemon = True
+                new_thread.start()
+                atexit.register(new_thread.cancel)
+
+    except:
+        logger.error('Problem with periodic actions')
+
 
 
 def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
@@ -78,8 +97,8 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
             else:
                 return True
     except Exception as E:
-            logger.error(f'Action Handling Failure \
-                         ({type(E).__name__})')
+            logger.error(f'Action Handling Failure'
+                         f'({type(E).__name__})')
             return False
 
 
@@ -204,12 +223,13 @@ def onMessage(IRCmsgDict: dict):
             elif successes >= 1: # at least one action ran to completion
                 if method in [cr.TIPS, cr.BITS, cr.SUBS]:  # (points/follows have no value)
                     logger.info(f'{method.upper()} (+${float(monetary):.2f}) donated by "{users_name}" succeeded')
+                    # the sumDonos() function must be able to distinguish this message from others
                 else:
                     logger.info(f'{method.upper()} from "{users_name}" succeeded')
             else:
                     logger.info(f'{method.upper()} (${float(monetary):.2f}) donated by viewer "{users_name}" without action')
 
     except Exception as E:
-        logger.error(f'Message Handling Failure \
-                     {type(E).__name__}')
+        logger.error(f'Message Handling Failure'
+                     f'{type(E).__name__}')
     return

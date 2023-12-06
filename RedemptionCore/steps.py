@@ -58,7 +58,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
 
             pin = ''
             if 'pin' in subcommand:
-                pin = int(subcommand['pin'].split('GPIO')[-1])
+                pin = int(subcommand['pin'].strip().upper().split('GPIO')[-1])
 
             if f == 'DELAY':
                 duration = int(subcommand['time_milliseconds'])

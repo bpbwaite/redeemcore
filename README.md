@@ -2,11 +2,11 @@
 
 RedemptionCore is in beta. There will be bugs and inefficiencies.
 
-One (1) TVs have been destroyed by RedemptionCore. [clip](https://www.twitch.tv/patrickw3d/clip/LongTransparentTardigradeKAPOW-0oH3BWzX0tLzxPOD)
+One (1) TVs have been destroyed by RedemptionCore. [Clip](https://www.twitch.tv/patrickw3d/clip/LongTransparentTardigradeKAPOW-0oH3BWzX0tLzxPOD)
 
 ## Use Case
 
-The purpose RedemptionCore is to allow programming the GPIO pins on a Raspberry Pi to react to events during Twitch stream. For example, "turn on a light when you receive a donation or subscription". The scope has grown to include Bits, Follows, and even Point redeems with custom messages.
+The purpose RedemptionCore is to allow programming the GPIO pins on a Raspberry Pi to react to events during Twitch stream. For example, "turn on a light when you receive a donation or subscription". The scope has grown to include bits, follows, and even point redeems with custom messages.
 
 ## Installation & Dependencies
 
@@ -43,7 +43,7 @@ There are now 3 categories of actions:
 
 + 'List': These are events that can be run when someone donates to you in the form of a tip, bits, subscription, new follow, or points. They are defined by [action fields](#action-fields).
 + 'Initialization': Actions that run only once when the program starts.
-+ 'Periodic': Not yet implemented
++ 'Periodic': Actions run on their own repeatedly.
 
 The ```actions.json``` file is a list of actions stored in a JSON object. Some things to note:
 
@@ -71,9 +71,7 @@ Note: Generally each action accepts just one mode. You may have copies of an act
 
 ### Initialization and Periodic Actions
 
-Actions that run on startup are called initialization actions. Their action fields include 'name' and 'steps'.
-
-Periodic actions run over and over without any input. They are like initialization actions but also have a 'period' field.
+These are automatic actions. Actions that run on startup are called initialization actions. Their action fields include 'name' and 'steps'. Periodic actions run repeatedly without any input. They are like initialization actions but also have a 'period' field, where you can enter an interval in milliseconds.
 
 ### Steps
 
@@ -89,8 +87,8 @@ Can be used in steps
 
 + **HIGH** - evaluates to true, for turning on digital pins
 + **LOW** - evaluates to false, for turning off digital pins
-+ **GIVEN** - evaluates to the amount donated, regardless of the cost. Always evalues to 500 upon subscriptions
-+ **REGEX_1, REGEX_2, ... REGEX_*n*** - evaluate to regular expression groups that the viewer supplied for a Points-action.
++ **GIVEN** - evaluates to the amount donated, regardless of the cost. Always evalues to 500 upon subscriptions, and 0 for automatic
++ **REGEX_1, REGEX_2, ... REGEX_*n*** - evaluate to regular expression groups that the viewer supplied for a Points-action
 
 ### Running Actions Manually
 

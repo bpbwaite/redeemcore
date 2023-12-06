@@ -1,6 +1,6 @@
 import os, shutil
-from decouple import config, Csv, UndefinedValueError
 import logging
+from decouple import config, Csv, UndefinedValueError
 
 # create config files if they don't exist
 new_install = False

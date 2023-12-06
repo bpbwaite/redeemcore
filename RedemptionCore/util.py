@@ -1,4 +1,5 @@
 import re
+from threading import Timer
 
 from .settings import logger, logFile
 
@@ -8,6 +9,11 @@ class cr: # custom reward methods enum
     SUBS = 'sub'
     POINTS = 'points'
     FOLLOWS = 'follow'
+
+class RepeatingTimer(Timer):
+     def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
 
 def sumDonos() -> float:
     try:
