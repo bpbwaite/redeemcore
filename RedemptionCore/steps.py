@@ -9,6 +9,7 @@ except:
     pass # debugging
 
 from .settings import logger, pinfactory
+from .util import timing_decorator
 
 # gpiozeo device storage and factory
 deviceContainer = {}
@@ -20,6 +21,7 @@ elif pinfactory == 'pigpio':
 else:
     pinfactory = NativeFactory()
 
+@timing_decorator
 def stepsParser(steps: dict, given: str = '0', user_params: list = []):
 
     try:
@@ -54,20 +56,20 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
             ### primary functions of each step:
             ###
 
-            f = subcommand['function'].strip().upper()
+            f = subcommand['function'].replace(' ', '').upper()
 
             pin = ''
             if 'pin' in subcommand:
                 pin = int(subcommand['pin'].strip().upper().split('GPIO')[-1])
 
             if f == 'DELAY':
-                duration = int(subcommand['time_milliseconds'])
+                duration = float(subcommand['duration'])
                 repetitions = 1.0 # default
                 if 'repeat' in subcommand:
                     repetitions = float(subcommand['repeat'])
                 logger.debug(f' - Running subcommand {f} with {duration}, {repetitions:.2f}')
 
-                time.sleep(repetitions * duration / 1000)
+                time.sleep(repetitions * duration / 1000.0)
 
             if f == 'SETPIN':
                 value = bool(int(subcommand['state']))
@@ -97,7 +99,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                         pin_factory=pinfactory
                         )
 
-            if f == 'SETPWM':
+            if f == 'SETPWMVALUE':
                 # currently limited to hex 0x00-0xFF
                 # mapped from 0.0 - 1.0
                 value = min(255, max(0, int(subcommand['state'], 16))) / 255.0
@@ -112,7 +114,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                         pin_factory=pinfactory
                         )
 
-            if f == 'SERVO':
+            if f == 'SERVOCONTROL':
                 pos = int(subcommand['position_deg'])
                 logger.debug(f' - Running subcommand {f} with {pin}, {pos}')
 

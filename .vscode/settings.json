@@ -1,3 +1,5 @@
 {
-    "python.analysis.typeCheckingMode": "off"
+    "python.analysis.typeCheckingMode": "off",
+    "prettier.jsxSingleQuote": true,
+    "prettier.singleQuote": true
 }

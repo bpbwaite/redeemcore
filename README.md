@@ -6,7 +6,7 @@ One (1) TVs have been destroyed by RedemptionCore. [Clip](https://www.twitch.tv/
 
 ## Use Case
 
-The purpose RedemptionCore is to allow programming the GPIO pins on a Raspberry Pi to react to events during Twitch stream. For example, "turn on a light when you receive a donation or subscription". The scope has grown to include bits, follows, and even point redeems with custom messages.
+The purpose of RedemptionCore is to allow programming the GPIO pins on a Raspberry Pi to react to events during Twitch stream. For example, "turn on a light when you receive a donation or subscription". The scope has grown to include bits, follows, and even point redeems with custom messages.
 
 ## Installation & Dependencies
 
@@ -57,8 +57,11 @@ The ```actions.json``` file is a list of actions stored in a JSON object. Some t
 Every list action has certain required fields:
 
 + 'name': A friendly, unique name for this action. (string)
-+ 'accepted_modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', 'follows', and 'points'. See also the [multiple-credit](#Multiple Credits) option. (list of string)
-+ 'cost': A number of cents, bits, or points required to run the action. Subscription and follow actions always run if they are one of the accepted modes. (integer or string)
++ 'enabled': (boolean)
++ 'category': One of "Normal (list)", "Initialization", or "Periodic"
++ 'accepted modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', 'follows', and 'points'. (list of string)
++ 'exact or multiple credit': One of "Multiple-Credit", "Exact", or "Neither (minimum)". Multiple-Credit causes tips or bits action to run multiple times, based on the size of the donation. Multiple credit actions should not use certain macros.
++ 'cost': A number of cents, bits, or points required to run the action. Subscription and follow actions always run if they are one of the accepted modes. (integer)
 + 'exact': If false, the cost for this action is a minimum threshold rather than a strict requirement. Implicitly true for points-actions. (boolean)
 + 'steps': (list of objects)
 
@@ -68,10 +71,6 @@ Point-actions required fields:
 + 'regexp_pts': A regular expression. The groups in the first match can be used as [macros](#macros) in the steps ran by the action. (string)
 
 Note: Generally each action accepts just one mode. You may have copies of an action where the only difference is the accepted modes and cost. It is not recommended to mix point-actions with the other types.
-
-### Multiple Credits
-
-Add the 'multiple-credit' option to the 'accepted_modes' field of an inexact tips or bits action to run multiple times, based on the size of the donation. Multiple credit actions should not use certain macros.
 
 ### Initialization and Periodic Actions
 

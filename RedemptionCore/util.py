@@ -1,20 +1,37 @@
 import re
+from time import time
 from threading import Timer
 
 from .settings import logger, logFile
 
-class cr: # custom reward methods enum
-    TIPS = 'tip'
+class cr:
+    # custom reward methods enum
+    # + categories
+    TIPS = 'tips'
     BITS = 'bits'
-    SUBS = 'sub'
+    SUBS = 'subs'
     POINTS = 'points'
     FOLLOWS = 'follow'
-    MULTIPLE_CREDIT = 'multicredit'
+    INIT = 'initialization'
+    PERIOD = 'periodic'
+    NORMAL = 'normal (list)'
+    EXACT = 'exact'
+    MULTI = 'multiple-credit'
 
 class RepeatingTimer(Timer):
      def run(self):
         while not self.finished.wait(self.interval):
+            logger.info('Interrupt: periodic task thread')
             self.function(*self.args, **self.kwargs)
+
+def timing_decorator(func):
+    def wrapper(*args, **kwargs):
+        ts = time()
+        ret = func(*args, **kwargs)
+        tf = time()
+        logger.debug(f'Returned in {1000*(tf-ts):.1f} ms')
+        return ret
+    return wrapper
 
 def sumDonos() -> float:
     try:
