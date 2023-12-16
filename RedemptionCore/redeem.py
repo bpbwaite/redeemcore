@@ -13,10 +13,13 @@ def initialTasks():
     # Run initialization tasks
     try:
         logger.info('Performing startup actions')
+        actions = []
         with open(actionFile, 'rt') as F:
-            for action in json.loads(F.read())['actions']:
-                if action['category'].lower() == cr.INIT:
-                    stepsParser(action['steps'])
+            actions = json.load(F)['actions']
+
+        for action in actions:
+            if action['category'].lower() == cr.INIT:
+                stepsParser(action['steps'])
 
     except:
         logger.error('Problem with startup actions')
@@ -25,17 +28,20 @@ def initialTasks():
 def registerPeriodicTasks():
     try:
         logger.info('Registering periodic actions')
+        actions = []
         with open(actionFile, 'rt') as F:
-            for action in json.loads(F.read())['actions']:
-                if action['category'].lower() == cr.PERIOD:
-                    period = int(action['period']) / 1000.0 # ms to sec
-                    new_thread = RepeatingTimer(interval=period,
-                                                function=stepsParser,
-                                                args=(action['steps'],)
-                                                )
-                    new_thread.daemon = True
-                    new_thread.start()
-                    atexit.register(new_thread.cancel)
+            actions = json.load(F)['actions']
+
+        for action in actions:
+            if action['category'].lower() == cr.PERIOD:
+                period = int(action['period']) / 1000.0 # ms to sec
+                new_thread = RepeatingTimer(interval=period,
+                                            function=stepsParser,
+                                            args=(action['steps'],)
+                                            )
+                new_thread.daemon = True
+                new_thread.start()
+                atexit.register(new_thread.cancel)
 
     except:
         logger.error('Problem with periodic actions')
