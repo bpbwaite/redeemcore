@@ -1,0 +1,281 @@
+{
+	"type": "VerticalLayout",
+	"elements": [
+		{
+			"type": "Control",
+			"scope": "#/properties/actions",
+			"label": "Actions",
+			"options": {
+				"elementLabelProp": "name",
+				"showSortButtons": true,
+				"detail": {
+					"type": "VerticalLayout",
+					"elements": [
+						{
+							"type": "HorizontalLayout",
+							"elements": [
+								{
+									"type": "Control",
+									"scope": "#/properties/name",
+									"label": "Action Name",
+									"options": {
+										"hideRequiredAsterisk": true
+									}
+								},
+								{
+									"type": "Control",
+									"scope": "#/properties/enabled",
+									"label": "Enabled",
+									"options": {
+										"toggle": true
+									}
+								}
+							]
+						},
+						{
+							"type": "VerticalLayout",
+							"rule": {
+								"effect": "DISABLE",
+								"condition": {
+									"scope": "#/properties/enabled",
+									"schema": {
+										"const": false
+									}
+								}
+							},
+							"elements": [
+								{
+									"type": "Control",
+									"scope": "#/properties/category",
+									"label": "Action Category",
+									"options": {
+										"format": "radio",
+										"hideRequiredAsterisk": true
+									}
+								},
+								{
+									"type": "Control",
+									"scope": "#/properties/period",
+									"label": "Interval (ms)",
+									"options": {
+										"trim": true
+									},
+									"rule": {
+										"effect": "SHOW",
+										"condition": {
+											"scope": "#/properties/category",
+											"schema": {
+												"const": "Periodic"
+											}
+										}
+									}
+								},
+								{
+									"type": "Group",
+									"label": "Triggers",
+									"rule": {
+										"effect": "SHOW",
+										"condition": {
+											"scope": "#/properties/category",
+											"schema": {
+												"const": "Normal (list)"
+											}
+										}
+									},
+									"elements": [
+										{
+											"type": "Control",
+											"scope": "#/properties/accepted_modes"
+										},
+										{
+											"type": "HorizontalLayout",
+											"rule": {
+												"effect": "SHOW",
+												"condition": {
+													"scope": "#/properties/accepted_modes",
+													"schema": {
+														"contains": {
+															"enum": [
+																"tips",
+																"bits"
+															]
+														}
+													}
+												}
+											},
+											"elements": [
+												{
+													"type": "Control",
+													"scope": "#/properties/cost",
+													"label": "Encoded Cost",
+													"options": {
+														"showUnfocusedDescription": true
+													}
+												},
+												{
+													"type": "Control",
+													"scope": "#/properties/exact_or_multiple_credit",
+													"label": "Condition",
+													"options": {
+														"showUnfocusedDescription": true
+													}
+												}
+											]
+										},
+										{
+											"type": "HorizontalLayout",
+											"rule": {
+												"effect": "SHOW",
+												"condition": {
+													"scope": "#/properties/accepted_modes",
+													"schema": {
+														"contains": {
+															"const": "points"
+														}
+													}
+												}
+											},
+											"elements": [
+												{
+													"type": "Control",
+													"scope": "#/properties/uuid_pts",
+													"label": "Points UUID",
+													"options": {
+														"showUnfocusedDescription": true
+													}
+												},
+												{
+													"type": "Control",
+													"scope": "#/properties/regexp_pts",
+													"label": "Regular Expression",
+													"options": {
+														"showUnfocusedDescription": true
+													}
+												}
+											]
+										}
+									]
+								},
+								{
+									"type": "Control",
+									"scope": "#/properties/steps",
+									"label": "Steps",
+									"options": {
+										"elementLabelProp": "function",
+										"hideRequiredAsterisk": true,
+										"showSortButtons": true,
+										"detail": {
+											"type": "VerticalLayout",
+											"elements": [
+												{
+													"type": "Control",
+													"scope": "#/properties/function",
+													"label": "Function",
+													"options": {
+														"showUnfocusedDescription": true
+													}
+												},
+												{
+													"type": "HorizontalLayout",
+													"rule": {
+														"effect": "HIDE",
+														"condition": {
+															"scope": "#/properties/function",
+															"schema": {
+																"enum": [
+																	"Delay"
+																]
+															}
+														}
+													},
+													"elements": [
+														{
+															"type": "Control",
+															"scope": "#/properties/pin",
+															"label": "GPIO Pin",
+															"options": {
+																"showUnfocusedDescription": true
+															}
+														},
+														{
+															"type": "Control",
+															"scope": "#/properties/state",
+															"label": "Pin State",
+															"options": {
+																"showUnfocusedDescription": true
+															},
+															"rule": {
+																"effect": "HIDE",
+																"condition": {
+																	"scope": "#/properties/function",
+																	"schema": {
+																		"enum": [
+																			"Delay",
+																			"Toggle Pin",
+																			"Servo Control"
+																		]
+																	}
+																}
+															}
+														},
+														{
+															"type": "Control",
+															"scope": "#/properties/position_deg",
+															"label": "Servo Angle",
+															"options": {
+																"showUnfocusedDescription": true
+															},
+															"rule": {
+																"effect": "SHOW",
+																"condition": {
+																	"scope": "#/properties/function",
+																	"schema": {
+																		"const": "Servo Control"
+																	}
+																}
+															}
+														}
+													]
+												},
+												{
+													"type": "HorizontalLayout",
+													"rule": {
+														"effect": "SHOW",
+														"condition": {
+															"scope": "#/properties/function",
+															"schema": {
+																"const": "Delay"
+															}
+														}
+													},
+													"elements": [
+														{
+															"type": "Control",
+															"scope": "#/properties/duration",
+															"label": "Delay Duration",
+															"options": {
+																"showUnfocusedDescription": true
+															}
+														},
+														{
+															"type": "Control",
+															"scope": "#/properties/repeat",
+															"label": "Delay Repetitions",
+															"options": {
+																"showUnfocusedDescription": true
+															}
+														}
+													]
+												}
+											]
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		}
+	]
+}
