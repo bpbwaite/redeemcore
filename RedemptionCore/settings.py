@@ -8,6 +8,7 @@ if not os.path.isfile('./settings.ini'):
     shutil.copyfile('./defaults-settings', './settings.ini')
     new_install = True
 if not os.path.isfile('./actions.json'):
+    # assumes user has not changed the directory or name
     shutil.copyfile('./defaults-actions', './actions.json')
 
 # set up the logger

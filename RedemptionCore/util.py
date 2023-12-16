@@ -29,7 +29,7 @@ def timing_decorator(func):
         ts = time()
         ret = func(*args, **kwargs)
         tf = time()
-        logger.debug(f'Returned in {1000*(tf-ts):.1f} ms')
+        logger.debug(f'{func.__name__} returned in {1000*(tf-ts):.1f} ms')
         return ret
     return wrapper
 
