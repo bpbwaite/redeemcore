@@ -103,7 +103,7 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
 
                                     if command_params is not None:
                                         # steps parser requries list of strings:
-                                        command_params = [item.strip().lstrip('0') for item in command_params.groups()]
+                                        command_params = [item.strip().lstrip('0') for item in command_params.groups()] # problematic?
                                         logger.info(f'P{costcode} - ({action["name"]}) with params "{", ".join(command_params)}"')
                                         stepsParser(action['steps'], costcode, command_params)
                                         return True
@@ -126,6 +126,9 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
 @timing_decorator
 def onMessage(IRCmsgDict: dict):
     try:
+        # DEBUGGIN
+        logger.debug(str(IRCmsgDict))
+
         message_text = emoji.demojize(IRCmsgDict['message'], delimiters=(':',':')) \
             .encode('ascii', errors='xmlcharrefreplace') \
             .decode(errors='ignore')
@@ -194,8 +197,9 @@ def onMessage(IRCmsgDict: dict):
             paycode = ''
             # incoming textbook bad coupling
             with open(actionFile, 'rt') as F:
-                for action in json.loads(F.read())['list']:
+                for action in json.load(F)['actions']:
                     if action['uuid_pts'] == IRCmsgDict['custom-reward-id']:
+                        # todo: check if key exists first, everywhere
                         paycode = str(action['cost'])
             monetary = paycode
             newEvent = True
