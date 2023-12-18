@@ -59,9 +59,12 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
 
             for action in json.loads(F.read())['actions']:
                 try:
-                    if action['category'][0].lower() == cr.NORMAL:
+                    if action['category'].lower() == cr.NORMAL:
                         # only run normal tasks
-                        costcode = str(action['cost'])
+                        costcode = '0'
+                        if 'cost' in action:
+                            costcode = str(action['cost'])
+
                         if payMethod in action['accepted_modes']:
 
                             if payMethod == cr.SUBS:
@@ -95,16 +98,20 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                                         stepsParser(action['steps'], paycode)
 
                             if payMethod == cr.POINTS:
-                                if paycode == costcode:
+                                if paycode == action['uuid_pts']:
                                     points_name = action['name']
-                                    points_regexp = action['regexp_pts']
+
+                                    points_regexp = '' # any/none regex
+
+                                    if 'regexp_pts' in action:
+                                        points_regexp = action['regexp_pts']
 
                                     command_params = re.compile(points_regexp).search(viewer_string)
 
                                     if command_params is not None:
                                         # steps parser requries list of strings:
                                         command_params = [item.strip().lstrip('0') for item in command_params.groups()] # problematic?
-                                        logger.info(f'P{costcode} - ({action["name"]}) with params "{", ".join(command_params)}"')
+                                        logger.info(f'P - ({action["name"]}) with params "{", ".join(command_params)}"')
                                         stepsParser(action['steps'], costcode, command_params)
                                         return True
                                     else:
@@ -198,11 +205,12 @@ def onMessage(IRCmsgDict: dict):
             # incoming textbook bad coupling
             with open(actionFile, 'rt') as F:
                 for action in json.load(F)['actions']:
-                    if action['uuid_pts'] == IRCmsgDict['custom-reward-id']:
+                    if 'uuid_pts' in action:
                         # todo: check if key exists first, everywhere
-                        paycode = str(action['cost'])
-            monetary = paycode
-            newEvent = True
+                        if action['uuid_pts'] == IRCmsgDict['custom-reward-id']:
+                            paycode = str(action['uuid_pts'])
+                            monetary = 0
+                            newEvent = True
 
         # manual trigger:
         if user_id in admins:
@@ -253,7 +261,7 @@ def onMessage(IRCmsgDict: dict):
                 else:
                     logger.info(f'{method.upper()} from "{users_name}" succeeded')
             else:
-                    logger.info(f'{method.upper()} (${float(monetary):.2f}) donated by viewer "{users_name}" without action')
+                    logger.info(f'{method.upper()} ({float(monetary):.2f}) donated by viewer "{users_name}" without action')
 
     except Exception as E:
         logger.error(f'Message Handling Failure'
