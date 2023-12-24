@@ -17,8 +17,9 @@ class loggingServer(SimpleHTTPRequestHandler):
 def serve(directory: Path, port: int = 3001):
     try:
         host_name = gethostname().strip().lower()
+        backslash = r'\\'
         if host_name and port:
-            logger.info(f"Serving {directory.replace(r'\\','/')} on http://{host_name}:{port}")
+            logger.info(f"Serving {directory.replace(backslash, '/')} on http://{host_name}:{port}")
             handler = partial(loggingServer, directory=directory)
             httpd = TCPServer(("", port), handler) # localhost
 
