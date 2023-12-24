@@ -4,13 +4,17 @@ import pigpio
 from decouple import config, Csv, UndefinedValueError
 
 # create config files if they don't exist
-new_install = False
-if not os.path.isfile('./settings.ini'):
-    shutil.copyfile('./defaults-settings', './settings.ini')
-    new_install = True
-if not os.path.isfile('./actions.json'):
-    # assumes user has not changed the directory or name
-    shutil.copyfile('./defaults-actions', './actions.json')
+try:
+    new_install = False
+    if not os.path.isfile('./settings.ini'):
+        shutil.copyfile('./defaults-settings', './settings.ini')
+        new_install = True
+    if not os.path.isfile('./actions.json'):
+        # assumes user has not changed the directory or name
+        shutil.copyfile('./defaults-actions', './actions.json')
+except:
+    exit() # todo
+    pass # no write access, or bad directory?
 
 # set up the logger
 try:
@@ -66,15 +70,16 @@ try:
     if pinfactory == 'pigpio':
         pi = pigpio.pi(show_errors=False)
         if not pi.connected:
-            logger.critical('The pigpio daemon is not running. Try executing \'sudo pigpiod\' and restart.')
+            logger.critical('The pigpio daemon is not running. Try executing \'sudo pigpiod\' and restart')
             raise SystemExit
 
     if pinfactory not in ['mock', 'rpigpio', 'lgpio', 'rpio', 'pigpio', 'native']:
         raise Exception
 
+    logger.info(f'Using {pinfactory} for GPIO pins')
 except SystemExit:
     exit()
 
 except:
-    logger.warning('Pin factory defaulted to mock')
     pinfactory = 'mock'
+    logger.warning('Pin factory defaulted to mock')

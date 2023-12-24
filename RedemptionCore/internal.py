@@ -1,7 +1,7 @@
 from threading import Thread
 from pathlib import Path
 from functools import partial
-from http.server import SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler, BaseHTTPRequestHandler
 from socketserver import TCPServer
 from socket import gethostname
 from typing import Any
@@ -10,7 +10,7 @@ from .settings import logger
 
 class loggingServer(SimpleHTTPRequestHandler):
     def log_message(self, format: str, *args: Any) -> None:
-        cct = getattr(type(self), '_control_char_table', None)
+        cct = BaseHTTPRequestHandler._control_char_table
         logger.debug('Serving %s : %s' %
                     (self.address_string(),
                     (format % args).translate(cct)))
