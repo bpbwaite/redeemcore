@@ -67,13 +67,13 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                 repetitions = 1.0 # default
                 if 'repeat' in subcommand:
                     repetitions = float(subcommand['repeat'])
-                logger.debug(f' - Running subcommand {f} with {duration}, {repetitions:.2f}')
+                logger.info(f' - Running subcommand {f} with {duration}, {repetitions:.2f}')
 
                 time.sleep(repetitions * duration / 1000.0)
 
             if f == 'SETPIN':
                 value = bool(int(subcommand['state']))
-                logger.debug(f' - Running subcommand {f} with {pin}, {value}')
+                logger.info(f' - Running subcommand {f} with {pin}, {value}')
 
                 if pin in deviceContainer:
                         if value:
@@ -88,7 +88,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                         )
 
             if f == 'TOGGLEPIN':
-                logger.debug(f' - Running subcommand {f} with {pin}')
+                logger.info(f' - Running subcommand {f} with {pin}')
 
                 if pin in deviceContainer:
                     deviceContainer[pin].toggle()
@@ -103,7 +103,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                 # currently limited to hex 0x00-0xFF
                 # mapped from 0.0 - 1.0
                 value = min(255, max(0, int(subcommand['state'], 16))) / 255.0
-                logger.debug(f' - Running subcommand {f} with {pin}, {value:.3f}')
+                logger.info(f' - Running subcommand {f} with {pin}, {value:.3f}')
 
                 if pin in deviceContainer:
                     deviceContainer[pin].value = value
@@ -116,7 +116,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
 
             if f == 'SERVOCONTROL':
                 pos = int(subcommand['position_deg'])
-                logger.debug(f' - Running subcommand {f} with {pin}, {pos}')
+                logger.info(f' - Running subcommand {f} with {pin}, {pos}')
 
                 if pin in deviceContainer:
                     deviceContainer[pin].angle = pos
@@ -126,8 +126,8 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                         initial_angle=pos,
                         min_angle=-135,
                         max_angle=135,
-                        min_pulse_width=500e-6,
-                        max_pulse_width=2500e-6,
+                        min_pulse_width=500e-6,  # todo: make configurable
+                        max_pulse_width=2500e-6, # todo: make configurable
                         pin_factory=pinfactory
                         )
 

@@ -1,5 +1,6 @@
 import os, shutil
 import logging
+import pigpio
 from decouple import config, Csv, UndefinedValueError
 
 # create config files if they don't exist
@@ -62,9 +63,15 @@ except UndefinedValueError:
 try:
     pinfactory = config('PINFACTORY').lower()
 
+    if pinfactory == 'pigpio':
+        pi = pigpio.pi(show_errors=False)
+        if not pi.connected:
+            logger.critical('The pigpio daemon is not running. Try executing \'sudo pigpiod\' and restart.')
+            exit()
+
     if pinfactory not in ['mock', 'rpigpio', 'lgpio', 'rpio', 'pigpio', 'native']:
         raise Exception
 
 except:
-    logger.warn('Pin factory defaulted to mock')
+    logger.warning('Pin factory defaulted to mock')
     pinfactory = 'mock'

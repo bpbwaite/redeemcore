@@ -1,5 +1,4 @@
 import json
-import atexit
 import re
 import emoji
 from math import floor
@@ -19,10 +18,11 @@ def initialTasks():
 
         for action in actions:
             if action['category'].lower() == cr.INIT:
-                stepsParser(action['steps'])
+                if action['enabled'] == True:
+                    stepsParser(action['steps'])
 
     except:
-        logger.error('Problem with startup actions')
+        logger.error('Problem with startup action(s)')
 
 @timing_decorator
 def registerPeriodicTasks():
@@ -34,17 +34,17 @@ def registerPeriodicTasks():
 
         for action in actions:
             if action['category'].lower() == cr.PERIOD:
-                period = int(action['period']) / 1000.0 # ms to sec
-                new_thread = RepeatingTimer(interval=period,
-                                            function=stepsParser,
-                                            args=(action['steps'],)
-                                            )
-                new_thread.daemon = True
-                new_thread.start()
-                atexit.register(new_thread.cancel)
+                if action['enabled'] == True:
+                    period = int(action['period']) / 1000.0 # ms to sec
+                    new_thread = RepeatingTimer(interval=period,
+                                                function=stepsParser,
+                                                args=(action['steps'],)
+                                                )
+                    new_thread.daemon = True
+                    new_thread.start()
 
     except:
-        logger.error('Problem with periodic actions')
+        logger.error('Problem with periodic action(s)')
 
 
 @timing_decorator
@@ -234,7 +234,7 @@ def onMessage(IRCmsgDict: dict):
                     method = cr.FOLLOWS
                 elif method == 'P':
                     method = cr.POINTS
-                    logger.error('Cannot force points-actions')
+                    logger.warning('Cannot force points-actions')
                     return
 
                 paycode = matches_forceAction.groups()[1].replace('.', '').lstrip('0')
