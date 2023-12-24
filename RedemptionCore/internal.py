@@ -10,9 +10,10 @@ from .settings import logger
 
 class loggingServer(SimpleHTTPRequestHandler):
     def log_message(self, format: str, *args: Any) -> None:
-        logger.debug('Server to %s : %s' %
+        cct = getattr(type(self), '_control_char_table', None)
+        logger.debug('Serving %s : %s' %
                     (self.address_string(),
-                    (format % args).translate(self._control_char_table)))
+                    (format % args).translate(cct)))
 
 def serve(directory: Path, port: int = 3001):
     try:
