@@ -11,7 +11,7 @@ import {
 } from '@jsonforms/material-renderers';
 import { makeStyles } from '@mui/styles';
 
-import initialData from './defaultactions.json';
+import initialData from './defaults-actions.json';
 
 
 const useStyles = makeStyles({
@@ -66,17 +66,13 @@ const App = () => {
     }
   };
 
-  const clearData = () => {
-      setData(initialData);
-  };
-
   const downloadFile = () => {
     const jsonContent = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonContent], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'iofile.json';
+    a.download = 'actionfile.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -121,7 +117,7 @@ const App = () => {
                 color='primary'
                 variant='contained'
                 >
-                Upload File
+                Load from Computer
               </Button>
             </label>
 
@@ -132,21 +128,11 @@ const App = () => {
             color='primary'
             variant='contained'
             >
-            Download File
-          </Button>
-
-          <Button
-            className={classes.resetButton}
-            component='span'
-            onClick={clearData}
-            color='primary'
-            variant='contained'
-            >
-           Clear All
+            Save to Computer
           </Button>
 
           <div className={classes.dataContent}>
-            <pre id='boundData'>{stringifiedData}</pre>
+            <pre id='boundData' style={{ fontStyle: 'italic' }}>{stringifiedData}</pre>
           </div>
         </Grid>
       </Grid>

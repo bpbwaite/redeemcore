@@ -59,6 +59,5 @@ typings/
 
 .idea
 
-build
 .yalc
 yalc.lock
