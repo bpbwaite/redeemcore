@@ -67,10 +67,13 @@ try:
         pi = pigpio.pi(show_errors=False)
         if not pi.connected:
             logger.critical('The pigpio daemon is not running. Try executing \'sudo pigpiod\' and restart.')
-            exit()
+            raise SystemExit
 
     if pinfactory not in ['mock', 'rpigpio', 'lgpio', 'rpio', 'pigpio', 'native']:
         raise Exception
+
+except SystemExit:
+    exit()
 
 except:
     logger.warning('Pin factory defaulted to mock')

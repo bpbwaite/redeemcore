@@ -19,7 +19,7 @@ def serve(directory: Path, port: int = 3001):
         host_name = gethostname().strip().lower()
         backslash = '\\'
         if host_name and port:
-            logger.info(f"Serving {directory.replace(backslash, '/')} on http://{host_name}:{port}")
+            logger.info(f'Serving {directory.replace(backslash, "/")} on http://{host_name}:{port}')
             handler = partial(loggingServer, directory=directory)
             httpd = TCPServer(("", port), handler) # localhost
 
