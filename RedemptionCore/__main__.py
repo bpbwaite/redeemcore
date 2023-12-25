@@ -10,7 +10,7 @@ def main():
 
     try:
 
-        serve('json-frontend-react\\build')
+        serve('json-frontend-react/build')
 
         connection = irc.TwitchChatIRC(suppress_print=True)
         atexit.register(connection.close_connection)

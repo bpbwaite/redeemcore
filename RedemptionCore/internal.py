@@ -3,9 +3,8 @@ from threading import Thread
 from pathlib import Path
 from functools import partial
 from itertools import chain
-from http.server import SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler, HTTPServer
 from http import HTTPStatus
-from socketserver import TCPServer
 from typing import Any
 from socket import gethostname
 from urllib.parse import urlparse
@@ -53,15 +52,14 @@ class RequestServer(SimpleHTTPRequestHandler):
             with open(actionFile, 'wt') as F:
                 F.write(post_data)
 
-def serve(directory: Path, port: int = 3001):
+def serve(directory: str, port: int = 3001):
     try:
         host_name = gethostname().strip().lower()
-        backslash = '\\'
+        directory = Path(directory).as_posix()
         if host_name and port:
-            logger.info(f'Serving {directory.replace(backslash, "/")} on http://{host_name}:{port}')
+            logger.info(f'Serving {directory} on http://{host_name}:{port}')
             handler = partial(RequestServer, directory=directory)
-            httpd = TCPServer(("", port), handler) # localhost
-
+            httpd = HTTPServer(("", port), handler) # localhost
             thread = Thread(target=httpd.serve_forever)
             thread.daemon = True
             thread.start()
