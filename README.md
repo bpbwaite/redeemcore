@@ -2,6 +2,11 @@
 
 RedemptionCore is in beta. There will be bugs and inefficiencies.
 
+Tested platforms:
+
++ Pi 4 8GB
++ Pi Zero W
+
 One (1) TVs have been destroyed by RedemptionCore. [Clip](https://www.twitch.tv/patrickw3d/clip/LongTransparentTardigradeKAPOW-0oH3BWzX0tLzxPOD)
 
 ## Use Case
@@ -10,15 +15,21 @@ The purpose of RedemptionCore is to allow programming the GPIO pins on a Raspber
 
 ## Installation & Dependencies
 
-Barebones at the moment:
+Requires Python, including pip, setuptools, build, venv, etc...
+Clone the repository with git, then:
 
-build with ```python -m build```
-
-install with ```pip install .```
-
-run with ```python -m RedemptionCore```
++ Do ```cd redeemcore```
++ Install with ```pip install .```
++ Run with ```python -m RedemptionCore```
++ Edit ```settings.ini``` after first boot
 
 You also need StreamElements and pigpiod ```(sudo pigpiod)```
+
+## Rebuilding Front-End
+
+```cd json-frontend-react```
+
+```npm run build```
 
 ## The ```settings.ini``` file
 
@@ -41,16 +52,15 @@ If you have a custom tip/sub message in StreamElements, you can edit the regular
 
 There are now 3 categories of actions:
 
-+ 'List': These are events that can be run when someone donates to you in the form of a tip, bits, subscription, new follow, or points. They are defined by [action fields](#action-fields).
++ 'Event': These are events that can be run when someone donates to you in the form of a tip, bits, subscription, new follow, or points. They are defined by [action fields](#action-fields).
 + 'Initialization': Actions that run only once when the program starts.
 + 'Periodic': Actions run on their own repeatedly.
 
-The ```actions.json``` file is a list of actions stored in a JSON object. Some things to note:
+To edit actions, navigate to the internal web server (default: ```http://raspberrypi:3001```)
 
 + Order actions based on priority; highest at the top
-+ Events shall run in the listed order
++ Events run in the listed order
 + Give "exact" actions a higher priority than "inexact" actions - unless you want every inexact action to run when a large enough "exact" donation is made
-+ Custom rewards for points are advanced, as they take a message from a viewer to control something.
 
 ### Action Fields
 
@@ -60,13 +70,14 @@ Every list action has certain required fields:
 + 'enabled': (boolean)
 + 'category': One of "Normal (list)", "Initialization", or "Periodic"
 + 'accepted modes': The sources that can trigger this action. Types are 'tips', 'bits', 'subs', 'follows', and 'points'. (list of string)
-+ 'exact or multiple credit': One of "Multiple-Credit", "Exact", or "Neither (minimum)". Multiple-Credit causes tips or bits action to run multiple times, based on the size of the donation. Multiple credit actions should not use certain macros.
++ 'exact or multiple credit': One of "Multiple-Credit", "Exact", or "Minimum". Multiple-Credit causes tips or bits action to run multiple times, based on the size of the donation. Multiple credit actions should not use certain macros.
 + 'cost': A number of cents, bits, or points required to run the action. Subscription and follow actions always run if they are one of the accepted modes. (integer)
 + 'exact': If false, the cost for this action is a minimum threshold rather than a strict requirement. Implicitly true for points-actions. (boolean)
 + 'steps': (list of objects)
 
 Point-actions required fields:
 
++ Custom rewards for points are advanced, as they take a message from a viewer to control something.
 + 'uuid_pts': The UUID reported over IRC when points are redeemed. (string)
 + 'regexp_pts': A regular expression. The groups in the first match can be used as [macros](#macros) in the steps ran by the action. (string)
 
@@ -79,7 +90,6 @@ These are automatic actions. Actions that run on startup are called initializati
 ### Steps
 
 Steps are a block of code that run on the Raspberry Pi; such as controlling GPIO.
-See the default ```actions.json``` template
 
 Supported functions:
 **DELAY**, **SETPIN**, **TOGGLEPIN**, **SETPWM**, **SERVO**
@@ -96,13 +106,12 @@ Can be used in steps
 
 ### Running Actions Manually
 
-Type in chat: ```force=<type><amount>``` to simlulate a donation. You must be an [administrator](#administrators). Valid examples:
+Type in chat: ```force=<type><amount>``` to simlulate a donation. You must be an [administrator](#administrators). Points not fully supported. Valid examples:
 
 + ```force= $5.00``` - a $5 tip
 + ```force= T1000``` - a $10 tip (i.e., 1000 cents)
 + ```force= B700``` - 700 bits
 + ```force= S500``` - a subscription
-+ ```force= P650 abc``` - 650 points with message 'abc'
 + ```force= F1``` - new follow
 
 ### Log File

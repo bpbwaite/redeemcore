@@ -14,7 +14,8 @@ class cr:
     FOLLOWS = 'follow'
     INIT = 'initialization'
     PERIOD = 'periodic'
-    NORMAL = 'normal (list)'
+    NORMAL = 'event'
+    MIN = 'minimum'
     EXACT = 'exact'
     MULTI = 'multiple-credit'
 

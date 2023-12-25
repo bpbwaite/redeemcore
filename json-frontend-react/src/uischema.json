@@ -78,7 +78,7 @@
 										"condition": {
 											"scope": "#/properties/category",
 											"schema": {
-												"const": "Normal (list)"
+												"const": "Event"
 											}
 										}
 									},

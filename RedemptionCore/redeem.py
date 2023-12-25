@@ -18,7 +18,7 @@ def initialTasks():
 
         for action in actions:
             if action['category'].lower() == cr.INIT:
-                if action['enabled'] == True:
+                if 'enabled' in action and action['enabled'] == True:
                     stepsParser(action['steps'])
 
     except:
@@ -34,7 +34,7 @@ def registerPeriodicTasks():
 
         for action in actions:
             if action['category'].lower() == cr.PERIOD:
-                if action['enabled'] == True:
+                if 'enabled' in action and action['enabled'] == True:
                     period = int(action['period']) / 1000.0 # ms to sec
                     new_thread = RepeatingTimer(interval=period,
                                                 function=stepsParser,
@@ -59,7 +59,7 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
 
             for action in json.loads(F.read())['actions']:
                 try:
-                    if action['enabled'] == True:
+                    if 'enabled' in action and action['enabled'] == True:
                         if action['category'].lower() == cr.NORMAL:
                             # only run normal tasks
                             costcode = '0'

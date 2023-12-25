@@ -1,3 +1,18 @@
 {
-    "actions": []
+    "actions": [
+        {
+            "name": "Click to edit new action",
+            "enabled": true,
+            "category": "Event",
+            "accepted_modes": [
+                "tips",
+                "bits"
+            ],
+            "steps": [
+                {
+                    "function": "Click to edit step"
+                }
+            ]
+        }
+    ]
 }
