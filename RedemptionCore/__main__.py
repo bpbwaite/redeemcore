@@ -1,6 +1,7 @@
 import atexit
-from twitch_chat_irc import twitch_chat_irc as irc
+from socket import gaierror
 
+from .irc import TwitchIRC as TwitchIRC
 from .settings import logger, channel
 from .internal import serve
 from .util import sumDonos
@@ -12,10 +13,10 @@ def main():
 
         serve('json-frontend-react/build')
 
-        connection = irc.TwitchChatIRC(suppress_print=True)
+        connection = TwitchIRC()
         atexit.register(connection.close_connection)
 
-        logger.info(f'Connected to "{channel}"')
+        logger.info(f'Connecting to "{channel}"')
         logger.info(f'System has accepted ${sumDonos():.2f} in donations')
 
         initialTasks()
@@ -26,7 +27,9 @@ def main():
         connection.listen(channel_name=channel, on_message=onMessage)
         # 'listen' enters infinite loop
 
-    except Exception as E:
+    except KeyboardInterrupt:
+        exit()
+    except (gaierror, Exception) as E:
         logger.critical(f'IRC or socket error. '
                         f'Are you connected to the internet? '
                         f'({type(E).__name__})')
