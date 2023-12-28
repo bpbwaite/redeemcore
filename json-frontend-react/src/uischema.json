@@ -89,6 +89,36 @@
 										},
 										{
 											"type": "HorizontalLayout",
+											"elements": [
+												{
+													"type": "Control",
+													"scope": "#/properties/limited",
+													"label": "Limit",
+													"options": {
+														"toggle": true
+													}
+												},
+												{
+													"type": "Control",
+													"scope": "#/properties/quantity",
+													"label": "Quantity",
+													"options": {
+														"showUnfocusedDescription": true
+													},
+													"rule": {
+														"effect": "SHOW",
+														"condition": {
+															"scope": "#/properties/limited",
+															"schema": {
+																"const": true
+															}
+														}
+													}
+												}
+											]
+										},
+										{
+											"type": "HorizontalLayout",
 											"rule": {
 												"effect": "SHOW",
 												"condition": {
@@ -97,7 +127,8 @@
 														"contains": {
 															"enum": [
 																"tips",
-																"bits"
+																"bits",
+																"raid"
 															]
 														}
 													}
@@ -107,7 +138,7 @@
 												{
 													"type": "Control",
 													"scope": "#/properties/cost",
-													"label": "Encoded Cost",
+													"label": "Cost",
 													"options": {
 														"showUnfocusedDescription": true
 													}
@@ -118,6 +149,20 @@
 													"label": "Condition",
 													"options": {
 														"showUnfocusedDescription": true
+													},
+													"rule": {
+														"effect": "SHOW",
+														"condition": {
+															"scope": "#/properties/accepted_modes",
+															"schema": {
+																"contains": {
+																	"enum": [
+																		"tips",
+																		"bits"
+																	]
+																}
+															}
+														}
 													}
 												}
 											]

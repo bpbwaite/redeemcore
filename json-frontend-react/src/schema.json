@@ -30,6 +30,14 @@
             "maximum": 86400000,
             "description": "The action will run this often (ms)"
           },
+          "limited": {
+            "type": "boolean"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Redemption limit (per-stream)"
+          },
           "accepted_modes": {
             "type": "array",
             "uniqueItems": true,
@@ -54,6 +62,10 @@
                 {
                   "const": "follow",
                   "title": "Follows"
+                },
+                {
+                  "const": "raid",
+                  "title": "Raid"
                 }
               ]
             }
@@ -65,13 +77,13 @@
               "Exact",
               "Multiple-Credit"
             ],
-            "description": "Minimum: Run once when the cost is exceeded.\nExact: Run only when exactly the cost is donated.\nMultiple-Credit: Run (donation amount)/(cost) times."
+            "description": "Minimum: Run once when the cost is exceeded. Exact: Run only when exactly the cost is donated. Multiple-Credit: Run (donation amount)/(cost) times."
           },
           "cost": {
             "type": "integer",
             "minimum": 1,
             "maximum": 99999999,
-            "description": "A number of cents or bits"
+            "description": "For tips, enter value without decimal point"
           },
           "uuid_pts": {
             "type": "string",
@@ -82,7 +94,7 @@
           "regexp_pts": {
             "type": "string",
             "minLength": 2,
-            "description": "Groups can be accessed by Steps"
+            "description": "Groups can be accessed by Steps. Enter '()' for none."
           },
           "steps": {
             "type": "array",
