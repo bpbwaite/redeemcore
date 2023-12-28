@@ -2,7 +2,7 @@
 
 ## Use Case
 
-The purpose of RedemptionCore is to allow programming the GPIO pins on a Raspberry Pi to react to events during Twitch stream. For example, "turn on a light when you receive a donation or subscription". The scope has grown to include bits, follows, and even point redeems with custom messages.
+The purpose of RedemptionCore is to allow programming the GPIO pins on a Raspberry Pi to react to events during Twitch stream. For example, "turn on a light when you receive a donation or subscription". The scope has grown to include bits, follows, raids, and even point redeems with custom messages.
 
 ## Installation & Dependencies
 
@@ -88,13 +88,14 @@ Can be used in steps
 
 ### Running Actions Manually
 
-Type in chat: ```!force<type><amount>``` to simlulate a donation. You must be an [administrator](#administrators). Points not supported. Valid examples:
+Type in chat: ```!force <type><amount>``` to simlulate a donation. You must be an [administrator](#administrators). Points not supported. Valid examples:
 
 + ```!force $5.00``` - a $5 tip
 + ```!force T1000``` - a $10 tip (i.e., 1000 cents)
 + ```!force B700``` - 700 bits
 + ```!force S500``` - a subscription
 + ```!force F1``` - new follow
++ ```!force R101``` - a raid of size 101
 
 ## Tested platforms
 

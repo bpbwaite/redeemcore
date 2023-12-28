@@ -87,6 +87,7 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                                 if payMethod in [cr.BITS, cr.TIPS]:
                                     # compute exactness
                                     exact = action['exact_or_multiple_credit'].lower() == cr.EXACT
+                                    multi = action['exact_or_multiple_credit'].lower() == cr.MULTI
                                     if exact and paycode == costcode:
                                         logger.info(f'A{costcode} - ({action["name"]})')
                                         stepsParser(action['steps'], paycode)
@@ -96,13 +97,20 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                                         logger.info(f'A{costcode} - ({action["name"]})')
                                         # inexact actions that accept multiple-credit can run repeatedly
                                         # e.g. a $5 action runs 4x when $20 is donated:
-                                        if action['exact_or_multiple_credit'].lower() == cr.MULTI:
+                                        if multi:
                                             if int(paycode) >= 2 * int(costcode):
-                                                logger.debug('Redeeming as multiple credits')
+                                                logger.info('Redeeming as multiple credits')
                                             for _ in range(floor(float(paycode) / float(costcode))):
                                                 stepsParser(action['steps'])
                                         else:
                                             stepsParser(action['steps'], paycode)
+
+                                if payMethod == cr.RAID:
+                                    if int(paycode) >= int(action['cost']):
+                                        # raid cost is always a minimum
+                                        success = True
+                                        logger.info(f'R{costcode} - ({action["name"]})')
+                                        stepsParser(action['steps'], paycode)
 
                                 if payMethod == cr.POINTS:
                                     if paycode == action['uuid_pts']:
@@ -133,7 +141,7 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
             else:
                 return True
     except Exception as E:
-            logger.error(f'Action Handling Failure'
+            logger.error(f'Action Handling Failure '
                          f'({type(E).__name__})')
             return False
 
@@ -170,31 +178,36 @@ def onMessage(IRCmsgDict: dict):
                                         flags=re.IGNORECASE) \
                                 .search(message_text)
 
+            matches_raid = re.compile(pattern=regxp_rad,\
+                                        flags=re.IGNORECASE) \
+                                .search(message_text)
+
             if matches_tip is not None:
                 method = cr.TIPS
-                monetary = matches_tip.groups()[1]
+                monetary = matches_tip.group(2)
                 paycode = monetary.replace('.', '').lstrip('0')
-                # StreamElements bot message
-                # The first group is assumed to be the user name
-                users_name = matches_tip.groups()[0].strip()
+                users_name = matches_tip.group(1).strip()
                 newEvent = True
 
             if matches_sub is not None:
                 method = cr.SUBS
                 monetary = '5.00'
                 paycode = '500'
-                # StreamElements bot message
-                # The first word is assumed to be the user name
-                users_name = message_text.lstrip().split(' ')[0]
+                users_name = matches_sub.group(1).strip()
                 newEvent = True
 
             if matches_follow is not None:
                 method = cr.FOLLOWS
                 monetary = '0'
                 paycode = '0'
-                # StreamElements bot message
-                # The last word is assumed to be the user name
-                users_name = message_text.lstrip().split(' ')[-1]
+                users_name = matches_follow.group(1).strip()
+                newEvent = True
+
+            if matches_raid is not None:
+                method = cr.RAID
+                monetary = '0'
+                paycode = matches_raid.group(2)
+                users_name = matches_raid.group(1).strip()
                 newEvent = True
 
         if 'bits' in IRCmsgDict:
@@ -237,6 +250,8 @@ def onMessage(IRCmsgDict: dict):
                     method = cr.SUBS
                 elif method == 'F':
                     method = cr.FOLLOWS
+                elif method == 'R':
+                    method = cr.RAID
                 elif method == 'P':
                     method = cr.POINTS
                     logger.warning('Cannot force points-actions')
@@ -268,10 +283,8 @@ def onMessage(IRCmsgDict: dict):
                     # the sumDonos() function must be able to distinguish this message from others
                 else:
                     logger.info(f'{method.upper()} from "{users_name}" succeeded')
-            else:
-                    logger.info(f'{method.upper()} ({float(monetary):.2f}) donated by viewer "{users_name}" without action')
 
     except Exception as E:
-        logger.error(f'Message Handling Failure'
-                     f'{type(E).__name__}')
+        logger.error(f'Message Handling Failure '
+                     f'({type(E).__name__})')
     return

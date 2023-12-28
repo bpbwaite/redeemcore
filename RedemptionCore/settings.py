@@ -53,6 +53,7 @@ try:
     regxp_sub = config('REGEX_SUB')
     regxp_tip = config('REGEX_TIP')
     regxp_fol = config('REGEX_FOLLOW')
+    regxp_rad = config('REGEX_RAID')
 
     channel = str(config('MAIN_CHANNEL')) # cast in case all numbers
     actionFile = config('ACTIONS')

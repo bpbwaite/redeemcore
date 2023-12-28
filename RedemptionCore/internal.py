@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 from .settings import logger, actionFile
 
 class RequestServer(SimpleHTTPRequestHandler):
-    # todo: wrap try-except blocks
+    # semaphore? I hardly know her!
     cct = str.maketrans(
             {c: fr'\x{c:02x}' for c in chain(range(0x20), range(0x7f,0xa0))})
     # redefinition of control table

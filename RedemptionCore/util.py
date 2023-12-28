@@ -12,6 +12,7 @@ class cr:
     SUBS = 'subs'
     POINTS = 'points'
     FOLLOWS = 'follow'
+    RAID = 'raid'
     INIT = 'initialization'
     PERIOD = 'periodic'
     NORMAL = 'event'
