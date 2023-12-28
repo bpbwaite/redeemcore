@@ -27,11 +27,11 @@ def initialTasks():
 @timing_decorator
 def registerPeriodicTasks():
     try:
-        logger.info('Registering periodic actions')
         actions = []
         with open(actionFile, 'rt') as F:
             actions = json.load(F)['actions']
 
+        ran_once = False
         for action in actions:
             if action['category'].lower() == cr.PERIOD:
                 if 'enabled' in action and action['enabled'] == True:
@@ -42,6 +42,12 @@ def registerPeriodicTasks():
                                                 )
                     new_thread.daemon = True
                     new_thread.start()
+                    ran_once = True
+
+        if ran_once:
+            logger.info('Registered periodic actions')
+        else:
+            logger.info('No periodic actions to register')
 
     except:
         logger.error('Problem with periodic action(s)')
@@ -81,7 +87,7 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                                 if payMethod in [cr.BITS, cr.TIPS]:
                                     # compute exactness
                                     exact = action['exact_or_multiple_credit'].lower() == cr.EXACT
-                                    if exact and paycode == str(action['cost']):
+                                    if exact and paycode == costcode:
                                         logger.info(f'A{costcode} - ({action["name"]})')
                                         stepsParser(action['steps'], paycode)
                                         return True # first exact event has run
@@ -207,7 +213,6 @@ def onMessage(IRCmsgDict: dict):
             with open(actionFile, 'rt') as F:
                 for action in json.load(F)['actions']:
                     if 'uuid_pts' in action:
-                        # todo: check if key exists first, everywhere
                         if action['uuid_pts'] == IRCmsgDict['custom-reward-id']:
                             paycode = str(action['uuid_pts'])
                             monetary = 0
@@ -246,7 +251,6 @@ def onMessage(IRCmsgDict: dict):
                 elif int(paycode) == 0:
                     paycode = '0'  # default value
 
-                logger.debug(f'Manual Command: {method}{paycode}')
                 users_name = '__OVERRIDE'
                 monetary = paycode
                 newEvent = True
