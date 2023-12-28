@@ -7,13 +7,12 @@ include-package-data = true
 
 [project]
 name = "RedemptionCore"
-version = "1.2.1"
+version = "1.3.0"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     'pigpio>=1.78',
     'gpiozero>=2.0',
     'python-decouple>=3.8',
-    'twitch-chat-irc==0.0.4',
     'emoji>=2.8.0'
 ]
