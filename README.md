@@ -18,8 +18,8 @@ You also need StreamElements and pigpiod ```(sudo pigpiod)```
 
 ## Rebuilding Front-End
 
-+```cd json-frontend-react```
-+```npm run build```
++ ```cd json-frontend-react```
++ ```npm run build```
 
 ## The ```settings.ini``` file
 
