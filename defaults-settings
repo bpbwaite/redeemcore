@@ -13,9 +13,9 @@ LEVEL = info
 # debug level or info level
 ACTIONS = actions.json
 OUTPUT_LOG = transactions.log
-REFORCE = force\s?=\s?([\$tbspf])(\d+(?:\.\d{2})?)
-REFOLLOW = (thank you for following)
-RESUB = (just subscribed)|(has been subbed)
-RETIP = (.+)[ ](?:just.tipped.)\$(\d+\.\d{2})
+REGEX_FORCE = !force\s+([\$tbspf])\s*?(\d+(?:\.\d{2})?)
+REGEX_FOLLOW = (?:thank.you.for.following)
+REGEX_SUB = (?:just.subscribed)|(?:has.been.subbed)
+REGEX_TIP = (.+)[ ](?:just.tipped.)\$(\d+\.\d{2})
 PINFACTORY = pigpio
 # 'pigpio' with daemon recommended. 'mock' (for debugging) and 'native' supported
