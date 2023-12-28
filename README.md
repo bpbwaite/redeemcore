@@ -66,6 +66,8 @@ Field Notes:
 
 Generally each action accepts just one mode. You may have copies of an action where the only difference is the accepted modes and cost. It is not recommended to mix point-actions with the other types, but tips and bits go together just fine.
 
+Limited quantity actions reset their counter when the program restarts.
+
 ### Initialization and Periodic Actions
 
 These are automatic actions. Actions that run on startup are called initialization actions. Their action fields include 'name' and 'steps'. Periodic actions run repeatedly without any input. They are like initialization actions but also have a 'period' field, where you can enter an interval in milliseconds. Automatic actions should not use certain macros.

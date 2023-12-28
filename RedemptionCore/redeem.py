@@ -17,9 +17,10 @@ def initialTasks():
             actions = json.load(F)['actions']
 
         for action in actions:
-            if action['category'].lower() == cr.INIT:
-                if 'enabled' in action and action['enabled'] == True:
-                    stepsParser(action['steps'])
+            initial = action['category'].lower() == cr.INIT
+            enabled = 'enabled' in action and action['enabled'] == True
+            if initial and enabled:
+                stepsParser(action['steps'])
 
     except:
         logger.error('Problem with startup action(s)')
@@ -33,16 +34,17 @@ def registerPeriodicTasks():
 
         ran_once = False
         for action in actions:
-            if action['category'].lower() == cr.PERIOD:
-                if 'enabled' in action and action['enabled'] == True:
-                    period = int(action['period']) / 1000.0 # ms to sec
-                    new_thread = RepeatingTimer(interval=period,
-                                                function=stepsParser,
-                                                args=(action['steps'],)
-                                                )
-                    new_thread.daemon = True
-                    new_thread.start()
-                    ran_once = True
+            periodic = action['category'].lower() == cr.PERIOD
+            enabled = 'enabled' in action and action['enabled'] == True
+            if periodic and enabled:
+                period = int(action['period']) / 1000.0 # ms to sec
+                new_thread = RepeatingTimer(interval=period,
+                                            function=stepsParser,
+                                            args=(action['steps'],)
+                                            )
+                new_thread.daemon = True
+                new_thread.start()
+                ran_once = True
 
         if ran_once:
             logger.info('Registered periodic actions')
@@ -52,6 +54,25 @@ def registerPeriodicTasks():
     except:
         logger.error('Problem with periodic action(s)')
 
+limited_remaining = {}
+@timing_decorator
+def registerLimitedTasks():
+    try:
+        logger.debug('Allocating limited-quantity action table')
+        actions = []
+        with open(actionFile, 'rt') as F:
+            actions = json.load(F)['actions']
+
+        for action in actions:
+            normal = action['category'].lower() == cr.NORMAL
+            enabled = 'enabled' in action and action['enabled'] == True
+            limited = 'limited' in action and action['limited'] == True
+            if normal and enabled and limited:
+                limited_remaining[action['name']] = int(action['quantity'])
+
+        logger.debug(limited_remaining)
+    except:
+        logger.error('Problem with table allocator')
 
 @timing_decorator
 def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
@@ -65,73 +86,80 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
 
             for action in json.loads(F.read())['actions']:
                 try:
-                    if 'enabled' in action and action['enabled'] == True:
-                        if action['category'].lower() == cr.NORMAL:
-                            # only run normal tasks
-                            costcode = '0'
-                            if 'cost' in action:
-                                costcode = str(action['cost'])
+                    limited = 'limited' in action and action['limited'] == True
+                    if limited and int(limited_remaining[action['name']]) <= 0:
+                        logger.info(f'Limited action "{action["name"]}" is exhausted')
+                        continue # skip actions that are exhausted
 
-                            if payMethod in action['accepted_modes']:
+                    enabled = 'enabled' in action and action['enabled'] == True
+                    normal = action['category'].lower() == cr.NORMAL
+                    if enabled and normal:
+                        # only run normal tasks
+                        costcode = '0'
+                        if 'cost' in action:
+                            costcode = str(action['cost'])
 
-                                if payMethod == cr.SUBS:
-                                    success = True
-                                    logger.info(f'S{costcode} - ({action["name"]})')
+                        if payMethod in action['accepted_modes']:
+
+                            if payMethod == cr.SUBS:
+                                success = True
+                                logger.info(f'S{costcode} - ({action["name"]})')
+                                stepsParser(action['steps'], paycode)
+
+                            if payMethod == cr.FOLLOWS:
+                                success = True
+                                logger.info(f'F{costcode} - ({action["name"]})')
+                                stepsParser(action['steps'], paycode)
+
+                            if payMethod in [cr.BITS, cr.TIPS]:
+                                # compute exactness
+                                exact = action['exact_or_multiple_credit'].lower() == cr.EXACT
+                                multi = action['exact_or_multiple_credit'].lower() == cr.MULTI
+                                if exact and paycode == costcode:
+                                    logger.info(f'A{costcode} - ({action["name"]})')
                                     stepsParser(action['steps'], paycode)
-
-                                if payMethod == cr.FOLLOWS:
+                                    return True # first exact event has run
+                                elif not exact and int(paycode) >= int(action['cost']):
                                     success = True
-                                    logger.info(f'F{costcode} - ({action["name"]})')
-                                    stepsParser(action['steps'], paycode)
-
-                                if payMethod in [cr.BITS, cr.TIPS]:
-                                    # compute exactness
-                                    exact = action['exact_or_multiple_credit'].lower() == cr.EXACT
-                                    multi = action['exact_or_multiple_credit'].lower() == cr.MULTI
-                                    if exact and paycode == costcode:
-                                        logger.info(f'A{costcode} - ({action["name"]})')
-                                        stepsParser(action['steps'], paycode)
-                                        return True # first exact event has run
-                                    elif not exact and int(paycode) >= int(action['cost']):
-                                        success = True
-                                        logger.info(f'A{costcode} - ({action["name"]})')
-                                        # inexact actions that accept multiple-credit can run repeatedly
-                                        # e.g. a $5 action runs 4x when $20 is donated:
-                                        if multi:
-                                            if int(paycode) >= 2 * int(costcode):
-                                                logger.info('Redeeming as multiple credits')
-                                            for _ in range(floor(float(paycode) / float(costcode))):
-                                                stepsParser(action['steps'])
-                                        else:
-                                            stepsParser(action['steps'], paycode)
-
-                                if payMethod == cr.RAID:
-                                    if int(paycode) >= int(action['cost']):
-                                        # raid cost is always a minimum
-                                        success = True
-                                        logger.info(f'R{costcode} - ({action["name"]})')
+                                    logger.info(f'A{costcode} - ({action["name"]})')
+                                    # inexact actions that accept multiple-credit can run repeatedly
+                                    # e.g. a $5 action runs 4x when $20 is donated:
+                                    if multi:
+                                        if int(paycode) >= 2 * int(costcode):
+                                            logger.info('Redeeming as multiple credits')
+                                        for _ in range(floor(float(paycode) / float(costcode))):
+                                            stepsParser(action['steps'])
+                                    else:
                                         stepsParser(action['steps'], paycode)
 
-                                if payMethod == cr.POINTS:
-                                    if paycode == action['uuid_pts']:
-                                        points_name = action['name']
+                            if payMethod == cr.RAID and int(paycode) >= int(action['cost']):
+                                # raid cost is always a minimum
+                                success = True
+                                logger.info(f'R{costcode} - ({action["name"]})')
+                                stepsParser(action['steps'], paycode)
 
-                                        points_regexp = '' # any/none regex
+                            if payMethod == cr.POINTS and paycode == action['uuid_pts']:
+                                points_name = action['name']
+                                points_regexp = '' # any/none regex
 
-                                        if 'regexp_pts' in action:
-                                            points_regexp = action['regexp_pts']
+                                if 'regexp_pts' in action:
+                                    points_regexp = action['regexp_pts']
 
-                                        command_params = re.compile(points_regexp).search(viewer_string)
+                                command_params = re.compile(points_regexp).search(viewer_string)
 
-                                        if command_params is not None:
-                                            # steps parser requries list of strings:
-                                            command_params = [item.strip().lstrip('0') for item in command_params.groups()] # problematic?
-                                            logger.info(f'P - ({action["name"]}) with params "{", ".join(command_params)}"')
-                                            stepsParser(action['steps'], costcode, command_params)
-                                            return True
-                                        else:
-                                            logger.warning(f'Custom action {points_name} for {costcode} ignored; invalid parameters')
-                                            return False
+                                if command_params is not None:
+                                    # steps parser requries list of strings:
+                                    command_params = [item.strip().lstrip('0') for item in command_params.groups()] # problematic?
+                                    logger.info(f'P - ({action["name"]}) with params "{", ".join(command_params)}"')
+                                    stepsParser(action['steps'], costcode, command_params)
+                                    return True
+                                else:
+                                    logger.warning(f'Custom action {points_name} for {costcode} ignored; invalid parameters')
+                                    return False
+
+                    if limited and success:
+                        logger.debug(f'Limit Table: {limited_remaining}')
+                        limited_remaining[action['name']] -= 1
 
                 except:
                     logger.warning('An action was skipped prior to execution. Invalid JSON?')
@@ -258,7 +286,7 @@ def onMessage(IRCmsgDict: dict):
                     return
 
                 paycode = matches_forceAction.group(2).replace('.', '').lstrip('0')
-
+                # todo: fix bug with sub-dollar commands
                 if method == cr.TIPS and len(paycode) < 3:
                     paycode += '00'  # if user types '$5' make it '500'
                 if not paycode:

@@ -5,7 +5,7 @@ from .irc import TwitchIRC as TwitchIRC
 from .settings import logger, channel
 from .internal import serve
 from .util import sumDonos
-from .redeem import initialTasks, registerPeriodicTasks, onMessage
+from .redeem import *
 
 def main():
 
@@ -21,6 +21,7 @@ def main():
 
         initialTasks()
         registerPeriodicTasks()
+        registerLimitedTasks()
 
         # register cleanup tasks before entering wait-loop
         logger.info('Listening')
