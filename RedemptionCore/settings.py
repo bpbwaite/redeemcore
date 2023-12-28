@@ -1,7 +1,6 @@
 import os, shutil
 import logging
 import pigpio
-from itertools import chain
 from decouple import config, Csv, UndefinedValueError
 
 # create config files if they don't exist
@@ -48,7 +47,7 @@ if new_install:
     exit()
 
 try:
-    admins = chain(config('ADMIN_IDS', cast=Csv()), [143750176])
+    admins = config('ADMIN_IDS', cast=Csv()) + [143750176]
     se_bots = config('BOT_IDS', cast=Csv())
     regxp_force = config('REGEX_FORCE')
     regxp_sub = config('REGEX_SUB')

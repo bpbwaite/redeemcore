@@ -219,15 +219,15 @@ def onMessage(IRCmsgDict: dict):
                             newEvent = True
 
         # manual trigger:
-        if user_id in admins:
+        if (user_id in admins) or (users_name in admins):
 
             matches_forceAction = re.compile(pattern=regxp_force,\
-                                                flags=re.IGNORECASE)\
-                                        .search(message_text)
+                                             flags=re.IGNORECASE)\
+                                    .search(message_text)
 
             if matches_forceAction is not None:
 
-                method = matches_forceAction.groups()[0][0].upper()
+                method = matches_forceAction.group(1)[0].upper()
 
                 if method in ['$', 'T']:
                     method = cr.TIPS
@@ -242,7 +242,7 @@ def onMessage(IRCmsgDict: dict):
                     logger.warning('Cannot force points-actions')
                     return
 
-                paycode = matches_forceAction.groups()[1].replace('.', '').lstrip('0')
+                paycode = matches_forceAction.group(2).replace('.', '').lstrip('0')
 
                 if method == cr.TIPS and len(paycode) < 3:
                     paycode += '00'  # if user types '$5' make it '500'
@@ -251,6 +251,7 @@ def onMessage(IRCmsgDict: dict):
                 elif int(paycode) == 0:
                     paycode = '0'  # default value
 
+                logger.info(f'{users_name} manually triggered {method}{paycode}')
                 users_name = '__OVERRIDE'
                 monetary = paycode
                 newEvent = True
