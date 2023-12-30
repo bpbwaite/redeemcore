@@ -2,10 +2,13 @@ import json
 import re
 import emoji
 from math import floor
+from threading import Semaphore
 
 from .settings import *
 from .util import cr, RepeatingTimer, timing_decorator
 from .steps import stepsParser
+
+# todo: split up this huge file
 
 @timing_decorator
 def initialTasks():
@@ -58,7 +61,6 @@ limited_remaining = {}
 @timing_decorator
 def registerLimitedTasks():
     try:
-        logger.debug('Allocating limited-quantity action table')
         actions = []
         with open(actionFile, 'rt') as F:
             actions = json.load(F)['actions']
@@ -70,7 +72,7 @@ def registerLimitedTasks():
             if normal and enabled and limited:
                 limited_remaining[action['name']] = int(action['quantity'])
 
-        logger.debug(limited_remaining)
+        logger.debug(f'Allocated limited-quantity action table: {limited_remaining}')
     except:
         logger.error('Problem with table allocator')
 
@@ -134,9 +136,10 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
 
                             if payMethod == cr.RAID and int(paycode) >= int(action['cost']):
                                 # raid cost is always a minimum
-                                success = True
+                                # but is treated as exact - returns from handler without falling through
                                 logger.info(f'R{costcode} - ({action["name"]})')
                                 stepsParser(action['steps'], paycode)
+                                return True
 
                             if payMethod == cr.POINTS and paycode == action['uuid_pts']:
                                 points_name = action['name']
@@ -173,12 +176,14 @@ def handleAction(paycode: str, payMethod: str, viewer_string: str = '') -> bool:
                          f'({type(E).__name__})')
             return False
 
+hs = Semaphore() # handle-semaphore
+
 @timing_decorator
 def onMessage(IRCmsgDict: dict):
     try:
         # DEBUGGIN
         logger.debug(str(IRCmsgDict))
-
+        # todo:  this but without emoji library, just print unicode
         message_text = emoji.demojize(IRCmsgDict['message'], delimiters=(':',':')) \
             .encode('ascii', errors='xmlcharrefreplace') \
             .decode(errors='ignore')
@@ -261,6 +266,7 @@ def onMessage(IRCmsgDict: dict):
 
         # manual trigger:
         if (user_id in admins) or (users_name in admins):
+            # todo: allow parsing 'admins' as list of str
 
             matches_forceAction = re.compile(pattern=regxp_force,\
                                              flags=re.IGNORECASE)\
@@ -270,6 +276,7 @@ def onMessage(IRCmsgDict: dict):
 
                 method = matches_forceAction.group(1)[0].upper()
 
+                # todo: use map in place of switch tower
                 if method in ['$', 'T']:
                     method = cr.TIPS
                 elif method == 'B':
@@ -300,13 +307,20 @@ def onMessage(IRCmsgDict: dict):
                 newEvent = True
 
         if newEvent:
+            # todo: time how long acquisition takes
+            hs.acquire()
+
+            # CRITICAL SECTION
             successes = handleAction(paycode, method, message_text)
+
+            hs.release()
+
             logger.info('Done')
 
             if users_name == '__OVERRIDE':
                 pass
             elif successes >= 1: # at least one action ran to completion
-                if method in [cr.TIPS, cr.BITS, cr.SUBS]:  # (points/follows have no value)
+                if method in [cr.TIPS, cr.BITS, cr.SUBS]:  # (points/follows/raids have no value)
                     logger.info(f'{method.upper()} (+${float(monetary):.2f}) donated by "{users_name}" succeeded')
                     # the sumDonos() function must be able to distinguish this message from others
                 else:
