@@ -2,12 +2,15 @@ import socket
 import re
 import random
 import contextlib
+from threading import Thread
 
 from .settings import logger
 
 # Based on the PyPI package twitch-chat-irc v 0.0.4
 # stripped to be read-only
 # generates random bot usernames
+# onMessage is called in a new thread and semaphores handled by higher layer
+# (purpose is to avoid blocking vital ping/pong messages, not parallelize actions)
 # capabilities planned to extend to USERNOTICE
 
 class TwitchIRC:
@@ -73,6 +76,7 @@ class TwitchIRC:
 
                     if('PING :tmi.twitch.tv' in readbuffer):
                         self.__send_raw('PONG :tmi.twitch.tv')
+                        logger.debug('pingpong!')
 
                     matches = list(self.__PATTERN.finditer(readbuffer))
 
@@ -96,7 +100,8 @@ class TwitchIRC:
                             messages.append(data)
 
                             with contextlib.suppress(Exception):
-                                on_message(data)
+                                Thread(target=on_message, args=(data, ), daemon=True).start()
+                                # effectively: on_message(data) in new thread
 
                 except socket.timeout:
                     if(timeout is not None):
