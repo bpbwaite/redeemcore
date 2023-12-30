@@ -1,5 +1,6 @@
 import re
 from time import time
+from math import fsum
 from threading import Timer
 
 from .settings import logger, logFile
@@ -35,17 +36,54 @@ def timing_decorator(func):
         return ret
     return wrapper
 
-def sumDonos() -> float:
+def sumDonos() -> list:
+    # returns 3 floats:
+    # - dollar value of donations/tips
+    # - dollar value of bits
+    # - dollar value of subscriptions
     try:
-        runningTotal = 0
+        _split = 0.50 # 50/50 split on subscriptions (multiplier)
+
+        lines = ''
         with open(logFile, 'rt') as F:
-            for lines in F:
-                m = re.compile(pattern=str(r'\+\$(\d+\.\d{2})')) \
-                         .search(lines)
-                if m is not None:
-                        runningTotal += float(m.groups()[0])
+            lines = F.read()
+
+        # for backward compatibility only use first letter of CR type
+        # now filters out debug messages with dollar amounts in them
+        # todo: rewrite this and other sections to use discrete values
+        # therefore avoiding ieee754 rounding errors
+
+        matches_dono = list(re.compile(
+            pattern=str(r'\[info\].*?>.T.{2,4}?\(?\+?\$(\d+\.\d{2})'),
+            flags=re.IGNORECASE | re.MULTILINE)
+            .finditer(lines))
+        matches_bits = list(re.compile(
+            pattern=str(r'\[info\].*?>.B.{2,4}?\(?\+?\$(\d+\.\d{2})'),
+            flags=re.IGNORECASE | re.MULTILINE)
+            .finditer(lines))
+        matches_subs = list(re.compile(
+            pattern=str(r'\[info\].*?>.S.{2,4}\(?\+?\$(\d+\.\d{2})'),
+            flags=re.IGNORECASE | re.MULTILINE)
+            .finditer(lines))
+
+        Dono = fsum([float(x.group(1)) for x in matches_dono])
+        Bits = fsum([float(x.group(1)) for x in matches_bits])
+        SubsTotal = fsum([float(x.group(1)) for x in matches_subs])
+        SubsValue = SubsTotal * _split
 
     except:
          logger.error('Invalid log file or structure')
-         return 0
-    return runningTotal
+         return []
+
+    return [Dono, Bits, SubsTotal, SubsValue]
+
+def splash():
+
+    # todo: clear terminal here
+    logger.info('Starting RedemptionCore')
+
+    d, b, st, sv = sumDonos()
+    logger.info(f'System has accepted '
+                f'${d:.2f} in donations, '
+                f'${b:.2f} in bits, and about '
+                f'${sv:.2f} from {int(st / 5.00)} subs. ')

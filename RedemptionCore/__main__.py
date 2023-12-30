@@ -2,14 +2,16 @@ import atexit
 from socket import gaierror
 
 from .irc import TwitchIRC as TwitchIRC
-from .settings import logger, channel
+from .settings import logger
+from .settings import channel
 from .internal import serve
-from .util import sumDonos
+from .util import splash
 from .redeem import *
 
 def main():
 
     try:
+        splash()
 
         serve('json-frontend-react/build')
 
@@ -17,13 +19,11 @@ def main():
         atexit.register(connection.close_connection)
 
         logger.info(f'Connecting to "{channel}"')
-        logger.info(f'System has accepted ${sumDonos():.2f} in donations')
 
         initialTasks()
         registerPeriodicTasks()
         registerLimitedTasks()
 
-        # register cleanup tasks before entering wait-loop
         logger.info('Listening')
         connection.listen(channel_name=channel, on_message=onMessage)
         # 'listen' enters infinite loop
