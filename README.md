@@ -90,7 +90,7 @@ Can be used in steps
 
 ### Running Actions Manually
 
-Type in chat: ```!force <type><amount>``` to simlulate a donation. You must be an [administrator](#administrators). Points not supported. Valid examples:
+Type in chat: ```!force <type><amount>``` to simulate a donation. You must be an [administrator](#administrators). Points not supported. Valid examples:
 
 + ```!force $5.00``` - a $5 tip
 + ```!force T1000``` - a $10 tip (i.e., 1000 cents)
