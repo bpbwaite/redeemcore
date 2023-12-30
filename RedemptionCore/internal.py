@@ -45,7 +45,7 @@ class RequestServer(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         with contextlib.suppress(Exception):
-            self.send_response(200)
+            self.send_response(HTTPStatus.OK)
             self.end_headers()
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length).decode()
@@ -56,6 +56,7 @@ class RequestServer(SimpleHTTPRequestHandler):
                     F.write(post_data)
 
 def serve(directory: str, port: int = 3001):
+    # todo: decuople port argument to optional config value
     try:
         host_name = gethostname().strip().lower()
         directory = Path(directory).as_posix()
@@ -63,8 +64,8 @@ def serve(directory: str, port: int = 3001):
             logger.info(f'Serving {directory} on http://{host_name}:{port}')
             handler = partial(RequestServer, directory=directory)
             httpd = HTTPServer(("", port), handler) # localhost
-            thread = Thread(target=httpd.serve_forever)
-            thread.daemon = True
-            thread.start()
+
+            # run forever:
+            Thread(target=httpd.serve_forever, daemon=True).start()
     except:
         logger.error('Internal server error')
