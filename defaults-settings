@@ -13,7 +13,7 @@ LEVEL = info
 # debug level or info level
 ACTIONS = actions.json
 OUTPUT_LOG = transactions.log
-REGEX_FORCE = !force\s+([\$tbspfr])\s*?(\d+(?:\.\d{2})?)
+REGEX_FORCE = ^!force\s+([\$tbspfr])\s*?(\d+(?:\.\d{2})?)
 REGEX_FOLLOW = (?:thank.you.for.following.+?)([a-z0-9_]+)
 REGEX_RAID = ([a-z0-9_]+)[ ](?:raided.the.channel.with.)(\d+)
 REGEX_SUB = ([a-z0-9_]+)[ ](?:just.subscribed)|(?:has.been.subbed)

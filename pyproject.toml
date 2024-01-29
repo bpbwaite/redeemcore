@@ -7,12 +7,11 @@ include-package-data = true
 
 [project]
 name = "RedemptionCore"
-version = "1.4.0"
+version = "1.4.1"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     'pigpio>=1.78',
     'gpiozero>=2.0',
     'python-decouple>=3.8',
-    'emoji>=2.8.0'
 ]
