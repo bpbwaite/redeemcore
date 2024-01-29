@@ -8,6 +8,7 @@ from .internal import serve
 from .util import splash
 from .redeem import *
 
+
 def main():
 
     try:

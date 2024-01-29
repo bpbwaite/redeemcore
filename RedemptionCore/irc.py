@@ -11,14 +11,15 @@ from .settings import logger
 # generates random bot usernames
 # onMessage is called in a new thread and semaphores handled by higher layer
 # (purpose is to avoid blocking vital ping/pong messages, not parallelize actions)
-# capabilities planned to extend to USERNOTICE
+# capabilities planned to extend to USERNOTICE and automattic reconnection
+
 
 class TwitchIRC:
     __HOST = 'irc.chat.twitch.tv'
     __PORT = 6667
 
     __PATTERN = re.compile(r'@(.+?(?=\s+:)).*PRIVMSG[^:]*:([^\r\n]*)')
-    #__PATTERN2 = re.compile(r'(.+?).*USERNOTICE[^:]*:([^\r\n]*)')
+    # __PATTERN2 = re.compile(r'(.+?).*USERNOTICE[^:]*:([^\r\n]*)')
 
     __CURRENT_CHANNEL = None
 
@@ -35,11 +36,11 @@ class TwitchIRC:
 
         # log in
         self.__send_raw('CAP REQ :twitch.tv/tags')
-        self.__send_raw(f'PASS oauth:password') # dummy password
+        self.__send_raw(f'PASS oauth:password')  # dummy password
         self.__send_raw(f'NICK {self.__NICK}')
 
     def __send_raw(self, string):
-        self.__SOCKET.send((string+'\r\n').encode())
+        self.__SOCKET.send((string + '\r\n').encode())
 
     def __recvall(self, buffer_size):
         data = b''
@@ -53,7 +54,7 @@ class TwitchIRC:
     def __join_channel(self, channel_name):
         channel_lower = channel_name.lower()
 
-        if(self.__CURRENT_CHANNEL != channel_lower):
+        if (self.__CURRENT_CHANNEL != channel_lower):
             self.__send_raw(f'JOIN #{channel_lower}')
             self.__CURRENT_CHANNEL = channel_lower
 
@@ -74,16 +75,16 @@ class TwitchIRC:
                     new_info = self.__recvall(buffer_size)
                     readbuffer += new_info
 
-                    if('PING :tmi.twitch.tv' in readbuffer):
+                    if ('PING :tmi.twitch.tv' in readbuffer):
                         self.__send_raw('PONG :tmi.twitch.tv')
                         logger.debug('pingpong!')
 
                     matches = list(self.__PATTERN.finditer(readbuffer))
 
-                    if(matches):
+                    if (matches):
                         time_since_last_message = 0
 
-                        if(len(matches) > 1):
+                        if (len(matches) > 1):
                             # assume last one is incomplete
                             matches = matches[:-1]
 
@@ -104,7 +105,7 @@ class TwitchIRC:
                                 # effectively: on_message(data) in new thread
 
                 except socket.timeout:
-                    if(timeout is not None):
+                    if (timeout is not None):
                         time_since_last_message += message_timeout
 
         except Exception as e:

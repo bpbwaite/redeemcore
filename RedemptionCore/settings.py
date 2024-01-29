@@ -13,23 +13,24 @@ try:
         # assumes user has not changed the directory or name
         shutil.copyfile('./defaults-actions', './actions.json')
 except:
-    exit() # todo
-    pass # no write access, or bad directory?
+    exit()  # todo
+    pass  # no write access, or bad directory?
 
 # set up the logger
 try:
     logFile = config('OUTPUT_LOG')
     logLevel = config('LEVEL')
-    if not logFile and logLevel: raise UndefinedValueError
+    if not logFile and logLevel:
+        raise UndefinedValueError
 
 except UndefinedValueError:
-    logFile = '' # ignore on empty. no log file will be produced, only printed
+    logFile = ''  # ignore on empty. no log file will be produced, only printed
     logLevel = 'info'
 
 if logLevel.lower() == 'debug':
-     logLevel = logging.DEBUG
+    logLevel = logging.DEBUG
 else:
-     logLevel = logging.INFO
+    logLevel = logging.INFO
 
 logging.basicConfig(filename=logFile if logFile else None,
                     filemode='a+',
@@ -37,7 +38,9 @@ logging.basicConfig(filename=logFile if logFile else None,
                     level=logLevel,
                     datefmt='%b %d, %Y %H:%M:%S'
                     )
-logging.getLogger().addHandler(logging.StreamHandler())
+sh = logging.StreamHandler()
+sh.setLevel(logLevel)
+logging.getLogger().addHandler(sh)
 
 logger = logging.getLogger()
 
@@ -55,11 +58,13 @@ try:
     regxp_fol = config('REGEX_FOLLOW')
     regxp_rad = config('REGEX_RAID')
 
-    channel = str(config('MAIN_CHANNEL')) # cast in case all numbers
+    channel = str(config('MAIN_CHANNEL'))  # cast in case all numbers
     actionFile = config('ACTIONS')
 
-    if not actionFile: raise UndefinedValueError
-    if not channel: raise UndefinedValueError
+    if not actionFile:
+        raise UndefinedValueError
+    if not channel:
+        raise UndefinedValueError
 
 except UndefinedValueError:
     logger.critical('Failed to get one or more configuration keys. Delete settings.ini and restart')
@@ -77,7 +82,7 @@ try:
     if pinfactory not in ['mock', 'rpigpio', 'lgpio', 'rpio', 'pigpio', 'native']:
         raise Exception
 
-    logger.info(f'Using {pinfactory} for GPIO pins')
+    logger.debug(f'Using {pinfactory} for GPIO pins')
 except SystemExit:
     exit()
 

@@ -6,7 +6,7 @@ try:
     from gpiozero.pins.native import NativeFactory
     from gpiozero.pins.pigpio import PiGPIOFactory
 except:
-    pass # debugging
+    pass  # debugging
 
 from .settings import logger, pinfactory
 from .util import timing_decorator
@@ -20,6 +20,9 @@ elif pinfactory == 'pigpio':
     pinfactory = PiGPIOFactory()
 else:
     pinfactory = NativeFactory()
+
+# todo: serial option for duino
+
 
 @timing_decorator
 def stepsParser(steps: dict, given: str = '0', user_params: list = []):
@@ -53,7 +56,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                     return
 
             ###
-            ### primary functions of each step:
+            # primary functions of each step:
             ###
 
             f = subcommand['function'].replace(' ', '').upper()
@@ -64,7 +67,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
 
             if f == 'DELAY':
                 duration = float(subcommand['duration'])
-                repetitions = 1.0 # default
+                repetitions = 1.0  # default
                 if 'repeat' in subcommand:
                     repetitions = float(subcommand['repeat'])
                 logger.info(f' - Running subcommand {f} with {duration}, {repetitions:.2f}')
@@ -76,16 +79,16 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                 logger.info(f' - Running subcommand {f} with {pin}, {value}')
 
                 if pin in deviceContainer:
-                        if value:
-                            deviceContainer[pin].on()
-                        else:
-                            deviceContainer[pin].off()
+                    if value:
+                        deviceContainer[pin].on()
+                    else:
+                        deviceContainer[pin].off()
                 else:
                     deviceContainer[pin] = OutputDevice(
                         pin,
                         initial_value=value,
                         pin_factory=pinfactory
-                        )
+                    )
 
             if f == 'TOGGLEPIN':
                 logger.info(f' - Running subcommand {f} with {pin}')
@@ -97,7 +100,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                         pin,
                         initial_value=True,
                         pin_factory=pinfactory
-                        )
+                    )
 
             if f == 'SETPWMVALUE':
                 # currently limited to hex 0x00-0xFF
@@ -112,7 +115,7 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                         pin,
                         initial_value=value,
                         pin_factory=pinfactory
-                        )
+                    )
 
             if f == 'SERVOCONTROL':
                 pos = int(subcommand['position_deg'])
@@ -127,9 +130,9 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                         min_angle=-135,
                         max_angle=135,
                         min_pulse_width=500e-6,  # todo: make configurable
-                        max_pulse_width=2500e-6, # todo: make configurable
+                        max_pulse_width=2500e-6,  # todo: make configurable
                         pin_factory=pinfactory
-                        )
+                    )
 
     except Exception as E:
         logger.error(f' - Action terminated ({type(E).__name__})')
