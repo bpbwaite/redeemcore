@@ -20,3 +20,5 @@ REGEX_SUB = ([a-z0-9_]+)[ ](?:just.subscribed)|(?:has.been.subbed)
 REGEX_TIP = ([a-z0-9_]+)[ ](?:just.tipped.)\$(\d+\.\d{2})
 PINFACTORY = pigpio
 # 'pigpio' with daemon recommended. 'mock' (for debugging) and 'native' supported
+SERVO_TYPE = 500_2500_270
+# Large servos typ 500_2500_270, small servos typ 1000_2000_180
