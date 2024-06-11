@@ -136,13 +136,13 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                     if servotype.strip() == '1000_2000_270':
                         minangle = -135
                         maxangle = 135
-                        minpulse = 1000e-6
+                        minpulse = 500e-6
                         maxpulse = 2000e-6
                     if servotype.strip() == '500_2500_180':
                         minangle = -90
                         maxangle = 90
-                        minpulse = 500e-6
-                        maxpulse = 2500e-6
+                        minpulse = 1000e-6
+                        maxpulse = 2000e-6
 
                     deviceContainer[pin] = AngularServo(
                         pin,
