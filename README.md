@@ -9,9 +9,8 @@ The purpose of RedemptionCore is to allow programming the GPIO pins on a Raspber
 Requires Python, including pip, setuptools, build, venv, etc...
 Clone the repository with git, then:
 
-+ Do ```cd redeemcore```
-+ Install with ```pip install .```
-+ Run with ```python -m RedemptionCore```
++ Do ```$ cd redeemcore```
++ Install & Run with ```# ./start.sh```
 + Edit ```settings.ini``` after first boot
 
 You also need StreamElements and pigpiod ```(sudo pigpiod)```
