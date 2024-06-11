@@ -8,7 +8,7 @@ try:
 except:
     pass  # debugging
 
-from .settings import logger, pinfactory
+from .settings import logger, pinfactory, servotype
 from .util import timing_decorator
 
 # gpiozeo device storage and factory
@@ -20,8 +20,6 @@ elif pinfactory == 'pigpio':
     pinfactory = PiGPIOFactory()
 else:
     pinfactory = NativeFactory()
-
-# todo: serial option for duino
 
 
 @timing_decorator
@@ -124,13 +122,35 @@ def stepsParser(steps: dict, given: str = '0', user_params: list = []):
                 if pin in deviceContainer:
                     deviceContainer[pin].angle = pos
                 else:
+                    # defaults to 500_2500_270
+                    minangle = -135
+                    maxangle = 135
+                    minpulse = 500e-6
+                    maxpulse = 2500e-6
+
+                    if servotype.strip() == '1000_2000_180':
+                        minangle = -90
+                        maxangle = 90
+                        minpulse = 1000e-6
+                        maxpulse = 200e-6
+                    if servotype.strip() == '1000_2000_270':
+                        minangle = -135
+                        maxangle = 135
+                        minpulse = 1000e-6
+                        maxpulse = 200e-6
+                    if servotype.strip() == '500_2500_180':
+                        minangle = -90
+                        maxangle = 90
+                        minpulse = 500e-6
+                        maxpulse = 2500e-6
+
                     deviceContainer[pin] = AngularServo(
                         pin,
                         initial_angle=pos,
-                        min_angle=-135,
-                        max_angle=135,
-                        min_pulse_width=500e-6,  # todo: make configurable
-                        max_pulse_width=2500e-6,  # todo: make configurable
+                        min_angle=minangle,
+                        max_angle=maxangle,
+                        min_pulse_width=minpulse,
+                        max_pulse_width=maxpulse,
                         pin_factory=pinfactory
                     )
 
