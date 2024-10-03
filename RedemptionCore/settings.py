@@ -1,102 +1,74 @@
 import os, shutil, io
+import json
 import logging
 import pigpio
-from decouple import config, Csv, UndefinedValueError
+
 
 # create config files if they don't exist
 try:
     new_install = False
-    if not os.path.isfile('./settings.ini'):
-        shutil.copyfile('./defaults-settings', './settings.ini')
-        new_install = True
     if not os.path.isfile('./actions.json'):
-        # assumes user has not changed the directory or name
-        shutil.copyfile('./defaults-actions', './actions.json')
+        new_install = True
+        shutil.copyfile('./defaults-actions-settings.json', './actions.json')
 except:
     print('Critical file access error [1], cannot continue.')
     exit()  # no write access, or bad directory?
 
-# if a line exists in the defaults and not in settings, add it to settings
-# assume both files exist
 try:
-    NewDefaults = open('./defaults-settings', 'rt')
-    OldSettings = open('./settings.ini', 'r+')
+    config = json.load(open('actions.json', 'rt'))['settings']
 
-    newlength = NewDefaults.read().count('\n')
-    oldlength = OldSettings.read().count('\n')
-    lineCountDiff = newlength - oldlength
-    # fall through if there are no new lines, or the file is mangled
-    if lineCountDiff != 0 and (newlength > lineCountDiff):
-        NewDefaults.seek(0, io.SEEK_SET)
-        for _ in range(0, newlength - lineCountDiff):
-            x = NewDefaults.readline()  # discard lines
+    # set up the logger
 
-        newlinesText = NewDefaults.read()
-        OldSettings.seek(0, io.SEEK_END)
-        OldSettings.write(newlinesText)
+    logFile = config['advanced']['output']
+    logLevel = config['advanced']['debug_level']
+
+    if not logFile:
+        logFile = ''  # ignore on empty. no log file will be produced, only printed
+
+    if logLevel.lower() == 'debug':
+        logLevel = logging.DEBUG
+    else:
+        logLevel = logging.INFO
+
+    logging.basicConfig(filename=logFile if logFile else None,
+                        filemode='a+',
+                        format='[%(levelname)s][%(asctime)s] > %(message)s',
+                        level=logLevel,
+                        datefmt='%b %d, %Y %H:%M:%S'
+                        )
+    sh = logging.StreamHandler()
+    sh.setLevel(logLevel)
+    logging.getLogger().addHandler(sh)
+
+    logger = logging.getLogger()
+
+    # parse settings
+    if new_install:
+        logger.critical('Please update settings in the actions.jsonc file before first use')
+        exit()
+
+    admins = config['admin_ids']
+    se_bots = config['bot_ids']
+
+    regxp_force = config['regex']['force']
+    regxp_sub = config['regex']['sub']
+    regxp_tip = config['regex']['tip']
+    regxp_fol = config['regex']['follow']
+    regxp_rad = config['regex']['raid']
+
+    servotype = config['advanced']['servo_type']
+
+    channel = str(config['main_channel'])  # cast in case all numbers
+    actionFile = config['advanced']['actions']
+    if (not actionFile) or (not channel):
+        raise Exception
 
 except:
-    print('Critical file access error [2], cannot continue.')
-    exit()
-
-# set up the logger
-try:
-    logFile = config('OUTPUT_LOG')
-    logLevel = config('LEVEL')
-    if not logFile and logLevel:
-        raise UndefinedValueError
-
-except UndefinedValueError:
-    logFile = ''  # ignore on empty. no log file will be produced, only printed
-    logLevel = 'info'
-
-if logLevel.lower() == 'debug':
-    logLevel = logging.DEBUG
-else:
-    logLevel = logging.INFO
-
-logging.basicConfig(filename=logFile if logFile else None,
-                    filemode='a+',
-                    format='[%(levelname)s][%(asctime)s] > %(message)s',
-                    level=logLevel,
-                    datefmt='%b %d, %Y %H:%M:%S'
-                    )
-sh = logging.StreamHandler()
-sh.setLevel(logLevel)
-logging.getLogger().addHandler(sh)
-
-logger = logging.getLogger()
-
-# parse settings
-if new_install:
-    logger.critical('Please update the settings.ini file before use')
+    print('Failed to get one or more configuration keys')
     exit()
 
 try:
-    admins = config('ADMIN_IDS', cast=Csv()) + [143750176]  # with developer access
-    # admins = config('ADMIN_IDS', cast=Csv())              # without developer access
-    se_bots = config('BOT_IDS', cast=Csv())
-    regxp_force = config('REGEX_FORCE')
-    regxp_sub = config('REGEX_SUB')
-    regxp_tip = config('REGEX_TIP')
-    regxp_fol = config('REGEX_FOLLOW')
-    regxp_rad = config('REGEX_RAID')
-    servotype = config('SERVO_TYPE')
-
-    channel = str(config('MAIN_CHANNEL'))  # cast in case all numbers
-    actionFile = config('ACTIONS')
-
-    if not actionFile:
-        raise UndefinedValueError
-    if not channel:
-        raise UndefinedValueError
-
-except UndefinedValueError:
-    logger.critical('Failed to get one or more configuration keys. Delete settings.ini and restart')
-    exit()
-
-try:
-    pinfactory = config('PINFACTORY').lower()
+    pinfactory = config['advanced']['pinfactory'].lower()
 
     if pinfactory == 'pigpio':
         pi = pigpio.pi(show_errors=False)

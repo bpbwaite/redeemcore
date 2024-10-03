@@ -11,7 +11,7 @@ Clone the repository with git, then:
 
 + Do ```$ cd redeemcore```
 + Install & Run with ```# ./start.sh```
-+ Edit ```settings.ini``` after first boot
++ Open the web interface to edit settings
 
 You also need StreamElements and pigpiod ```(sudo pigpiod)```
 
@@ -19,13 +19,6 @@ You also need StreamElements and pigpiod ```(sudo pigpiod)```
 
 + ```cd json-frontend-react```
 + ```npm run build```
-
-## The ```settings.ini``` file
-
-Is the basic config used before any actions can be registered. At the least, you should specify:
-
-+ A channel to watch (name as it appears in your URL)
-+ The Twitch ID of a "bot" user - the default is StreamElements
 
 ### Administrators
 
@@ -37,7 +30,12 @@ If you have a custom tip/sub message in StreamElements, you can edit the regular
 
 ## Actions
 
-To edit actions, navigate to the internal web server (default: ```http://raspberrypi:3001```)
+To edit settings and actions, navigate to the internal web server (default: ```http://raspberrypi:3001```)
+
+For settings, you should specify
+
++ A channel to watch (name as it appears in your URL)
++ The Twitch ID of a "bot" user - the default is StreamElements
 
 ### What is an Action?
 

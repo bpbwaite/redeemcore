@@ -3,6 +3,118 @@
 	"elements": [
 		{
 			"type": "Control",
+			"scope": "#/properties/settings",
+			"label": "Settings",
+			"options": {
+				"elementLabelProp": "name",
+				"detail": {
+					"type": "VerticalLayout",
+					"elements": [
+						{
+							"type": "Control",
+							"scope": "#/properties/main_channel",
+							"label": "Twitch Channel",
+							"options": {
+								"hideRequiredAsterisk": true
+							}
+						},
+						{
+							"type": "HorizontalLayout",
+							"elements": [
+								{
+									"type": "Control",
+									"scope": "#/properties/admin_ids",
+									"label": "Admins",
+									"options": {
+										"hideRequiredAsterisk": true
+									}
+								},
+								{
+									"type": "Control",
+									"scope": "#/properties/bot_ids",
+									"label": "Bots",
+									"options": {
+										"hideRequiredAsterisk": true
+									}
+								}
+							]
+						},
+						{
+							"type": "Control",
+							"scope": "#/properties/regex",
+							"label": "Regexes",
+							"options": {
+								"hideRequiredAsterisk": true
+							}
+						},
+						{
+							"type": "Control",
+							"scope": "#/properties/advanced",
+							"label": "Advanced",
+							"options": {
+								"detail": {
+									"type": "VerticalLayout",
+									"elements": [
+										{
+											"type": "HorizontalLayout",
+											"elements": [
+												{
+													"type": "Control",
+													"scope": "#/properties/actions",
+													"label": "Action File",
+													"options": {
+														"hideRequiredAsterisk": true
+													}
+												},
+												{
+													"type": "Control",
+													"scope": "#/properties/output",
+													"label": "Log File",
+													"options": {
+														"hideRequiredAsterisk": true
+													}
+												},
+												{
+													"type": "Control",
+													"scope": "#/properties/debug_level",
+													"label": "Log Level",
+													"options": {
+														"hideRequiredAsterisk": true
+													}
+												}
+											]
+										},
+										{
+											"type": "HorizontalLayout",
+											"elements": [
+												{
+													"type": "Control",
+													"scope": "#/properties/pinfactory",
+													"label": "GPIO Controller",
+													"options": {
+														"hideRequiredAsterisk": true
+													}
+												},
+												{
+													"type": "Control",
+													"scope": "#/properties/servo_type",
+													"label": "Servo Settings",
+													"options": {
+														"hideRequiredAsterisk": true
+													}
+												}
+											]
+										}
+									]
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"type": "Control",
 			"scope": "#/properties/actions",
 			"label": "Actions",
 			"options": {

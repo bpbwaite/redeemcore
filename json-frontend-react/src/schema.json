@@ -1,6 +1,89 @@
 {
   "type": "object",
   "properties": {
+    "settings": {
+      "type": "object",
+      "title": "Settings",
+      "properties": {
+        "main_channel": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Your Twitch Channel"
+        },
+        "admin_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bot_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "regex": {
+          "type": "object",
+          "properties": {
+            "force": {
+              "type": "string"
+            },
+            "follow": {
+              "type": "string"
+            },
+            "raid": {
+              "type": "string"
+            },
+            "sub": {
+              "type": "string"
+            },
+            "tip": {
+              "type": "string"
+            }
+          }
+        },
+        "advanced": {
+          "type": "object",
+          "properties": {
+            "debug_level": {
+              "type": "string",
+              "enum": [
+                "info",
+                "debug"
+              ]
+            },
+            "actions": {
+              "type": "string",
+              "description": "File to read actions from"
+            },
+            "output": {
+              "type": "string",
+              "description": "File to output logs to"
+            },
+            "pinfactory": {
+              "type": "string",
+              "enum": [
+                "pigpio",
+                "mock",
+                "native"
+              ]
+            },
+            "servo_type": {
+              "type": "string",
+              "minLength": 5,
+              "description": "minUsec_maxUsec_maxAngle"
+            }
+          },
+          "required": [
+            "actions",
+            "output"
+          ]
+        }
+      },
+      "required": [
+        "main_channel"
+      ]
+    },
     "actions": {
       "type": "array",
       "title": "Actions",

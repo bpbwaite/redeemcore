@@ -1,0 +1,41 @@
+{
+    "settings": {
+        "main_channel": "Your_Channel_Here",
+        "admin_ids": [
+            "143750176"
+        ],
+        "bot_ids": [
+            "100135110"
+        ],
+        "regex": {
+            "force": "^!force\\s+([\\$tbspfr])\\s*?(\\d+(?:\\.\\d{2})?)",
+            "follow": "(?:thank.you.for.following.+?)([a-z0-9_]+)",
+            "raid": "([a-z0-9_]+)[ ](?:raided.the.channel.with.)(\\d+)",
+            "sub": "([a-z0-9_]+)[ ](?:just.subscribed)|(?:has.been.subbed)",
+            "tip": "([a-z0-9_]+)[ ](?:just.tipped.)\\$(\\d+\\.\\d{2})"
+        },
+        "advanced": {
+            "debug_level": "info",
+            "actions": "actions.json",
+            "output": "transactions.log",
+            "pinfactory": "pigpio",
+            "servo_type": "500_2500_270"
+        }
+    },
+    "actions": [
+        {
+            "name": "Click to edit new action",
+            "enabled": true,
+            "category": "Event",
+            "accepted_modes": [
+                "tips",
+                "bits"
+            ],
+            "steps": [
+                {
+                    "function": "Click to edit step"
+                }
+            ]
+        }
+    ]
+}
